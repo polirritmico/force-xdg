@@ -4,6 +4,7 @@
 #         NAME:   XDG-Wrapper
 #  DESCRIPTION:   A simple BASH script to simulate XDG paths and clean HOME.
 #         DATE:   2022/07/07
+#         TODO:   Add warnning for sys apps like: ssh, bash, dbus, etc.
 #===============================================================================
 
 # e - script stops on error (return !=0)
@@ -20,16 +21,41 @@ SCRIPT_VERSION="0.1"
 SHORT_DESCRIPTION="A simple BASH script to simulate XDG paths and clean HOME."
 SCRIPT_NAME="XDG-Wrapper"
 
+XDG_WRAPPER_FOLDER="$XDG_DATA_HOME"/XDG-Wrapper
+XDG_WRAPPER_CACHE="$XDG_CACHE_HOME"/XDG-Wrapper
+
+DEPENDENCIES=( "bash" )
+
+#----------------------------------------
 # Terminal output font styles and colors
 GREEN="\033[0;32m"
 ORANGE="\033[0;33m"
-NC="\033[0m" # No color
-BOLD="\e[1m" # Bold text style
-IT="\e[3m"   # Italic text style
+NS="\033[0m" # No color
+BLD="\e[1m" # Bold text style
+ITL="\e[3m"   # Italic text style
 DF="\e[0m"   # Default style
+
+F_OK="${GREEN}${BLD}OK${NS}"
+F_ERR="\e[0;31m"
 
 # Get the real script filename even through a symbolic link
 SCRIPT_RUN="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+
+
+#-----------------------------------------------------------------------
+# Check dependencies
+#-----------------------------------------------------------------------
+missing_deps=0
+for dependency in "${DEPENDENCIES[@]}"; do
+    if ! command -v $dependency > /dev/null 2>&1; then
+        echo -e "$RED$SCRIPT_RUN: Could't find '$dependency' on the system."\
+                                 "Check if is installed.$NS"
+        ((++missing_deps))
+    fi
+done
+if [[ $missing_deps -gt 0 ]]; then
+    exit 1
+fi
 
 
 
@@ -39,7 +65,8 @@ SCRIPT_RUN="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 #===============================================================================
 function version()
 {
-    echo -e "$SCRIPT_NAME v$SCRIPT_VERSION, ${SHORT_DESCRIPTION,}"
+    echo -e "$BLD$SCRIPT_NAME v$SCRIPT_VERSION$NS"
+    echo -e "$ITL$SHORT_DESCRIPTION$NS\n"
 
 }  # ------------  end of function version  ------------
 
@@ -54,24 +81,35 @@ function help()
     echo -e "Usage: $SCRIPT_RUN [OPTION]... [PROGRAM]
 
 Options:
-  -f|folder        Manually setup destination folder (XDG_DATA_HOME by default)
+  -f|folder        Manually setup destination folder
+                   ("$XDG_WRAPPER_FOLDER" by default)
   -h|help          Display this help message.
   -v|version       Display the version of $SCRIPT_NAME and exit."
 
 }  # ------------  end of function help  ------------
 
+
+
 #-------------------------------------------------------------------------------
 #  Default variables
 #-------------------------------------------------------------------------------
 
-custom_folder=false
-DIFF_FILE="$XDG_CACHE_HOME"/XDG-Wrapper/diff
+custom_folder=""
+
+apps_db=()
+apps_db_file="$XDG_WRAPPER_FOLDER"/db
+home_before="$XDG_WRAPPER_CACHE"/before
+home_after="$XDG_WRAPPER_CACHE"/after
+
+app_name=""
+app_first_run=false
+app_dirs_and_files=()
 
 
 #-------------------------------------------------------------------------------
 #  Handle command line arguments
 #-------------------------------------------------------------------------------
-while getopts ":hv" opt
+while getopts ":hv:f" opt
     do
         case $opt in
             h|help)
@@ -84,7 +122,9 @@ while getopts ":hv" opt
                 exit 0
                 ;;
             f|folder)
-                custom_folder = true
+                custom_folder=$OPTARG
+                echo -e "$SCRIPT_NAME: Not implemented.\n"
+                exit 1
                 ;;
             :)
                 echo -e "$SCRIPT_NAME: Invalid option: '-$OPTARG' requires an argument\n"
@@ -100,6 +140,14 @@ while getopts ":hv" opt
 done
 shift $(($OPTIND-1))
 
+#----------------------------------------
+# Check for program arg
+if [[ $# -ne 1 ]]; then
+    echo -e "${F_ERR}ERROR: Missing [PROGRAM]. Check -help.$NS\n"
+    exit 1
+fi
+
+app_name=$1
 
 
 #===============================================================================
@@ -107,5 +155,11 @@ shift $(($OPTIND-1))
 #===============================================================================
 
 #-------------------------------------------------------------------------------
-# Prepare paths
+# Check first run and make paths
 #-------------------------------------------------------------------------------
+if [[ ! -d "$XDG_WRAPPER_FOLDER" ]]; then
+    mkdir "$XDG_WRAPPER_FOLDER"
+fi
+
+echo -e "$app_name"
+
