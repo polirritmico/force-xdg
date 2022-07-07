@@ -150,6 +150,21 @@ fi
 app_name=$1
 
 
+#===  FUNCTION  ================================================================
+#         NAME:   Read db file
+#  DESCRIPTION:   Return the full db file
+#===============================================================================
+function read_db_file()
+{
+    if [[ -f $apps_db_file ]]; then
+        apps_db=$(cat "$apps_db_file")
+    fi
+    echo $apps_db
+
+}  # ------------  end of function read_db_file  ------------
+
+
+
 #===============================================================================
 # BEGINNING OF SCRIPT WORK
 #===============================================================================
@@ -161,5 +176,5 @@ if [[ ! -d "$XDG_WRAPPER_FOLDER" ]]; then
     mkdir "$XDG_WRAPPER_FOLDER"
 fi
 
-echo -e "$app_name"
+db=$(read_db_file)
 
