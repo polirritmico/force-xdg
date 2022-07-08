@@ -101,8 +101,8 @@ apps_db_file="$XDG_WRAPPER_FOLDER"/db
 home_before="$XDG_WRAPPER_CACHE"/before
 home_after="$XDG_WRAPPER_CACHE"/after
 
+# TODO: get rid of app_name path (e.g. "~/path/to/binary/appname" → "appname")
 app_name=""
-app_first_run=false
 app_dirs_and_files=()
 
 
@@ -142,26 +142,69 @@ shift $(($OPTIND-1))
 
 #----------------------------------------
 # Check for program arg
-if [[ $# -ne 1 ]]; then
-    echo -e "${F_ERR}ERROR: Missing [PROGRAM]. Check -help.$NS\n"
+if [[ $# -eq 1 ]]; then
+    app_name=$1
+else
+    echo -e "${F_ERR}ERROR: Check usage.$NS\n"
+    help
     exit 1
 fi
 
-app_name=$1
 
 
 #===  FUNCTION  ================================================================
-#         NAME:   Read db file
-#  DESCRIPTION:   Return the full db file
+#         NAME:   Get dir and files from db
+#  DESCRIPTION:   Read the db file and get dirs and files used by appname.
 #===============================================================================
-function read_db_file()
+function get_dir_and_files_from_db()
 {
-    if [[ -f $apps_db_file ]]; then
-        apps_db=$(cat "$apps_db_file")
+    if [[ ! -e $apps_db_file ]]; then
+        return 1
     fi
-    echo $apps_db
 
-}  # ------------  end of function read_db_file  ------------
+    IFS=$'\n'
+    apps_db=($(cat "$apps_db_file"))
+
+    for (( i=0; i<${#apps_db[@]}; i++ )); do
+        IFS=$';'; line=(${apps_db[$i]}) # Split line by ";" into an array
+        if [[ ${line[0]} != $app_name ]]; then
+            continue
+        fi
+
+        # Get the array without first entry (app_name)
+        app_dirs_and_files=("${line[@]:1}")
+    done
+
+}  # ------------  end of function get_dir_and_files_from_db  ------------
+
+
+
+#===  FUNCTION  ================================================================
+#         NAME:   Run app
+#  DESCRIPTION:   Run the app
+#===============================================================================
+function run_app()
+{
+    if ! command -v $app_name > /dev/null 2>&1; then
+        echo "Error: $app_name seems not valid"
+        exit 1
+    fi
+    $(app_name)
+
+}  # ------------  end of function run_app  ------------
+
+
+
+#===  FUNCTION  ================================================================
+#         NAME:   Get diff dir and files
+#  DESCRIPTION:   Compare the before and after list and get the dirs and files
+#                 created by the app.
+#===============================================================================
+function get_diff_dir_and_files()
+{
+    echo "Not implemented"
+
+}  # ------------  end of function get_diff_dir_and_files  ------------
 
 
 
@@ -176,5 +219,29 @@ if [[ ! -d "$XDG_WRAPPER_FOLDER" ]]; then
     mkdir "$XDG_WRAPPER_FOLDER"
 fi
 
-db=$(read_db_file)
+get_dir_and_files_from_db
 
+if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
+    # App first run
+    home_before=($(find $HOME/. -mindepth 1 -maxdepth 1))
+    run_app
+    home_after=($(find $HOME/. -mindepth 1 -maxdepth 1))
+
+    get_diff_dir_and_files
+fi
+
+
+
+# 1. Check app in db
+#   TRUE:
+#       mv xdg/app to home/.folder
+#       run app
+#       mv home/.folder to xdg/app
+#   FALSE:
+#       get home folder and files list ($CACHE/before)
+#       run app
+#       get home folder and files list ($CACHE/after)
+#       get diff (before/after)
+#       add to db: appname;folder;files
+#       mv home/.folder to xdg/app
+#       clean $CACHE
