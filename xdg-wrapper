@@ -98,12 +98,12 @@ custom_folder=""
 
 apps_db=()
 apps_db_file="$XDG_WRAPPER_FOLDER"/db
-home_before="$XDG_WRAPPER_CACHE"/before
-home_after="$XDG_WRAPPER_CACHE"/after
 
 # TODO: get rid of app_name path (e.g. "~/path/to/binary/appname" → "appname")
 app_name=""
 app_dirs_and_files=()
+home_before=""
+home_after=""
 
 
 #-------------------------------------------------------------------------------
@@ -158,8 +158,11 @@ fi
 #===============================================================================
 function get_dir_and_files_from_db()
 {
+    echo "Get dir and files from db..."
+
     if [[ ! -e $apps_db_file ]]; then
-        return 1
+        echo "no db file found"
+        return 0
     fi
 
     IFS=$'\n'
@@ -175,13 +178,34 @@ function get_dir_and_files_from_db()
         app_dirs_and_files=("${line[@]:1}")
     done
 
+    unset IFS
 }  # ------------  end of function get_dir_and_files_from_db  ------------
 
 
 
 #===  FUNCTION  ================================================================
+#         NAME:   Save app info into db
+#  DESCRIPTION:   Save the appname, dirs and folders into the database.
+#===============================================================================
+function save_app_info_into_db()
+{
+    data="$app_name"
+    for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
+        data="${data};${app_dirs_and_files[i]}"
+    done
+    data="${data};"
+    # Remove $HOME path and dot
+    #data=$(echo $data | sed "s|$HOME/\.||g")
+
+    echo $data >> $apps_db_file
+
+}  # ------------  end of function save_app_info_into_db  ------------
+
+
+
+#===  FUNCTION  ================================================================
 #         NAME:   Run app
-#  DESCRIPTION:   Run the app
+#  DESCRIPTION:   Check if the app_name exists, then run it.
 #===============================================================================
 function run_app()
 {
@@ -189,7 +213,9 @@ function run_app()
         echo "Error: $app_name seems not valid"
         exit 1
     fi
-    $(app_name)
+
+    eval " $app_name > /dev/null 2>&1"
+    #eval " $app_name"
 
 }  # ------------  end of function run_app  ------------
 
@@ -202,9 +228,48 @@ function run_app()
 #===============================================================================
 function get_diff_dir_and_files()
 {
-    echo "Not implemented"
+    #echo $(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}"))
+    echo $(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}") | sed "s|$HOME/\.||g")
 
 }  # ------------  end of function get_diff_dir_and_files  ------------
+
+
+
+#===  FUNCTION  ================================================================
+#         NAME:   Move dir and files to home
+#  DESCRIPTION:   Move dirs and files in the db.
+#===============================================================================
+function mv_dir_and_files_to_home()
+{
+    for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
+        file=${app_dirs_and_files[i]}
+
+        mv "${XDG_WRAPPER_FOLDER}/${app_name}/${file}" "${HOME}/.${file}"
+    done
+
+}  # ------------  end of function mv_dir_and_files_to_home  ------------
+
+
+
+#===  FUNCTION  ================================================================
+#         NAME:   Mv dir and files from home
+#  DESCRIPTION:   Move dirs and files in the db from $HOME to XDG wrapper dir.
+#===============================================================================
+function mv_dir_and_files_from_home()
+{
+    # Create dir if doesn't exists
+    if [[ ! -d "${XDG_WRAPPER_FOLDER}/${app_name}" ]]; then
+        mkdir "${XDG_WRAPPER_FOLDER}/${app_name}"
+    fi
+
+    # Move the dir and files
+    for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
+        file=${app_dirs_and_files[i]}
+        
+        mv "$HOME/.$file" "${XDG_WRAPPER_FOLDER}/$app_name/$file"
+    done
+
+}  # ------------  end of function mv_dir_and_files_from_home  ------------
 
 
 
@@ -223,25 +288,24 @@ get_dir_and_files_from_db
 
 if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
     # App first run
-    home_before=($(find $HOME/. -mindepth 1 -maxdepth 1))
-    run_app
-    home_after=($(find $HOME/. -mindepth 1 -maxdepth 1))
+    home_before=$(find $HOME -mindepth 1 -maxdepth 1)
 
-    get_diff_dir_and_files
+    echo "Running ${app_name}..."
+    run_app
+    echo "Done"
+
+    home_after=$(find $HOME -mindepth 1 -maxdepth 1)
+
+    echo "Get diff files..."
+    app_dirs_and_files=$(get_diff_dir_and_files)
+    echo -e "Generated dir and files: ${app_dirs_and_files}"
+
+    save_app_info_into_db
+else
+    mv_dir_and_files_to_home
+    run_app
 fi
 
+mv_dir_and_files_from_home
+echo "Done"
 
-
-# 1. Check app in db
-#   TRUE:
-#       mv xdg/app to home/.folder
-#       run app
-#       mv home/.folder to xdg/app
-#   FALSE:
-#       get home folder and files list ($CACHE/before)
-#       run app
-#       get home folder and files list ($CACHE/after)
-#       get diff (before/after)
-#       add to db: appname;folder;files
-#       mv home/.folder to xdg/app
-#       clean $CACHE
