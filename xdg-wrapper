@@ -37,6 +37,9 @@ DF="\e[0m"   # Default style
 
 F_OK="${GREEN}${BLD}OK${NS}"
 F_ERR="\e[0;31m"
+F_CMD="\033[1;36m"
+F_ARG="\033[1;32m"
+F_OPT="\033[1;32m"
 
 # Get the real script filename even through a symbolic link
 SCRIPT_RUN="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
@@ -78,13 +81,20 @@ function version()
 #===============================================================================
 function help()
 {
-    echo -e "Usage: $SCRIPT_RUN [OPTION]... [PROGRAM]
+    echo -e "${BLD}Usage: $F_CMD$SCRIPT_RUN $F_ARG[OPTION]... [PROGRAM]$NS
+       $F_CMD$SCRIPT_RUN $F_ARG[OPTION]... [PROGRAM] [PROGRAM ARGS]$NS
 
-Options:
-  -f|folder        Manually setup destination folder
-                   ("$XDG_WRAPPER_FOLDER" by default)
-  -h|help          Display this help message.
-  -v|version       Display the version of $SCRIPT_NAME and exit."
+Move hidden polluting files from [HOME] to [XDG_DATA_HOME]/XDG-Wrapper/ folder.
+When [PROGRAM] is run for the first time is STRONGLY RECOMMENDED to close it
+immediately to get a clean file list. The script compare the state of [HOME]
+before and after the first execution to make a folders and files list based on
+the changes.
+
+${BLD}Options:
+$F_OPT  -f|folder        ${NS}Manually setup destination folder
+                   ($ITL"$XDG_WRAPPER_FOLDER"$NS by default)
+$F_OPT  -h|help          ${NS}Display this help message.
+$F_OPT  -v|version       ${NS}Display the version of $SCRIPT_NAME and exit."
 
 }  # ------------  end of function help  ------------
 
@@ -99,7 +109,6 @@ custom_folder=""
 apps_db=()
 apps_db_file="$XDG_WRAPPER_FOLDER"/db
 
-# TODO: get rid of app_name path (e.g. "~/path/to/binary/appname" → "appname")
 app_name=""
 app_dirs_and_files=()
 home_before=""
@@ -142,6 +151,7 @@ shift $(($OPTIND-1))
 
 #----------------------------------------
 # Check for program arg
+# TODO: get rid of app_name path (e.g. "~/path/to/binary/appname" → "appname")
 if [[ $# -eq 1 ]]; then
     app_name=$1
 else
