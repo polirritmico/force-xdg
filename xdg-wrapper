@@ -11,7 +11,7 @@
 # u - error if undefined variable
 # o pipefail - script fails if one of piped command fails
 # x - output each line (debug)
-set -euo pipefail
+#set -euo pipefail
 
 
 #-----------------------------------------------------------------------
@@ -22,9 +22,8 @@ SHORT_DESCRIPTION="A simple BASH script to simulate XDG paths and clean HOME."
 SCRIPT_NAME="XDG-Wrapper"
 
 XDG_WRAPPER_FOLDER="$XDG_DATA_HOME"/XDG-Wrapper
-XDG_WRAPPER_CACHE="$XDG_CACHE_HOME"/XDG-Wrapper
 
-DEPENDENCIES=( "bash" )
+DEPENDENCIES=( "getopts" "sed" "grep" "awk" )
 
 #----------------------------------------
 # Terminal output font styles and colors
@@ -110,6 +109,8 @@ apps_db=()
 apps_db_file="$XDG_WRAPPER_FOLDER"/db
 
 app_name=""
+app_name_clean=""
+app_args=""
 app_dirs_and_files=()
 home_before=""
 home_after=""
@@ -150,13 +151,14 @@ done
 shift $(($OPTIND-1))
 
 #----------------------------------------
-# Check for program arg
-# TODO: get rid of app_name path (e.g. "~/path/to/binary/appname" → "appname")
-if [[ $# -eq 1 ]]; then
-    app_name=$1
-else
-    echo -e "${F_ERR}ERROR: Check usage.$NS\n"
-    help
+# Check for program name and args
+app_name_raw=$1
+app_name="${app_name_raw##*/}"
+app_args="${@:2}" # get all args after first
+
+if ! command -v ${app_name_raw} > /dev/null 2>&1; then
+    echo -e "$F_ERR$SCRIPT_RUN: ERROR: Could't find '$app_name_raw'" \
+            " on the system.$NS"
     exit 1
 fi
 
@@ -168,11 +170,11 @@ fi
 #===============================================================================
 function get_dir_and_files_from_db()
 {
-    echo "Get dir and files from db..."
+    echo -e "$SCRIPT_RUN: ${ITL}Getting program info from db...$NS"
 
     if [[ ! -e $apps_db_file ]]; then
-        echo "no db file found"
-        return 0
+        echo -e "$SCRIPT_RUN: ${ORANGE}${ITL}No db file found.$NS"
+        return 1
     fi
 
     IFS=$'\n'
@@ -199,15 +201,19 @@ function get_dir_and_files_from_db()
 #===============================================================================
 function save_app_info_into_db()
 {
+    echo -e "$SCRIPT_RUN: ${ITL}Storing program info in the database...$NS"
     data="$app_name"
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         data="${data};${app_dirs_and_files[i]}"
     done
     data="${data};"
-    # Remove $HOME path and dot
-    #data=$(echo $data | sed "s|$HOME/\.||g")
+
+    if [[ ! -f $apps_db_file ]]; then
+        echo -e "$SCRIPT_RUN: ${ITL}Creating the database file...\n$F_OK"
+    fi
 
     echo $data >> $apps_db_file
+    echo -e "$F_OK"
 
 }  # ------------  end of function save_app_info_into_db  ------------
 
@@ -219,29 +225,27 @@ function save_app_info_into_db()
 #===============================================================================
 function run_app()
 {
-    if ! command -v $app_name > /dev/null 2>&1; then
-        echo "Error: $app_name seems not valid"
-        exit 1
-    fi
-
-    eval " $app_name > /dev/null 2>&1"
+    echo -e "Running ${app_name}...\n==================================="
+    eval " $app_name_raw > /dev/null 2>&1"
     #eval " $app_name"
+    echo -e "\n===================================\nClosed '${app_name}'\n"
 
 }  # ------------  end of function run_app  ------------
 
 
 
 #===  FUNCTION  ================================================================
-#         NAME:   Get diff dir and files
+#         NAME:   Get home diff
 #  DESCRIPTION:   Compare the before and after list and get the dirs and files
-#                 created by the app.
+#                 created by the app. Also remove $HOME and the dot from path.
 #===============================================================================
-function get_diff_dir_and_files()
+function get_home_diff()
 {
-    #echo $(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}"))
+    echo -e "$SCRIPT_RUN: ${ITL}Proccesing change list of folders and files...$NS"
     echo $(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}") | sed "s|$HOME/\.||g")
+    echo -e "$SCRIPT_RUN: Generated dir and files list: ${app_dirs_and_files}"
 
-}  # ------------  end of function get_diff_dir_and_files  ------------
+}  # ------------  end of function get_home_diff  ------------
 
 
 
@@ -251,11 +255,12 @@ function get_diff_dir_and_files()
 #===============================================================================
 function mv_dir_and_files_to_home()
 {
+    echo -e "$SCRIPT_RUN: ${ITL}Moving program folders to home...$NS"
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         file=${app_dirs_and_files[i]}
-
         mv "${XDG_WRAPPER_FOLDER}/${app_name}/${file}" "${HOME}/.${file}"
     done
+    echo -e "$F_OK"
 
 }  # ------------  end of function mv_dir_and_files_to_home  ------------
 
@@ -267,19 +272,34 @@ function mv_dir_and_files_to_home()
 #===============================================================================
 function mv_dir_and_files_from_home()
 {
+    echo -e "$SCRIPT_RUN: ${ITL}Cleaning home...$NS"
     # Create dir if doesn't exists
     if [[ ! -d "${XDG_WRAPPER_FOLDER}/${app_name}" ]]; then
+        echo -e "$SCRIPT_RUN: ${ITL}Creating ${app_name} folder...$NS"
         mkdir "${XDG_WRAPPER_FOLDER}/${app_name}"
     fi
 
     # Move the dir and files
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         file=${app_dirs_and_files[i]}
-        
         mv "$HOME/.$file" "${XDG_WRAPPER_FOLDER}/$app_name/$file"
     done
 
+    echo -e "$F_OK"
+
 }  # ------------  end of function mv_dir_and_files_from_home  ------------
+
+
+
+#===  FUNCTION  ================================================================
+#         NAME:   Get HOME state
+#  DESCRIPTION:   Get the current list of folders and files in HOME.
+#===============================================================================
+function get_home_state()
+{
+    echo $(find $HOME -mindepth 1 -maxdepth 1)
+
+}  # ------------  end of function get_home_state  ------------
 
 
 
@@ -291,25 +311,17 @@ function mv_dir_and_files_from_home()
 # Check first run and make paths
 #-------------------------------------------------------------------------------
 if [[ ! -d "$XDG_WRAPPER_FOLDER" ]]; then
+    echo -e "$SCRIPT_RUN: Creating '$XDG_DATA_HOME' folder..."
     mkdir "$XDG_WRAPPER_FOLDER"
+    echo -e "$F_OK"
 fi
 
-get_dir_and_files_from_db
-
-if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
-    # App first run
-    home_before=$(find $HOME -mindepth 1 -maxdepth 1)
-
-    echo "Running ${app_name}..."
+if [[ ! $(get_dir_and_files_from_db) == true ]]; then
+    # Data not found on db, so it is the first program run
+    home_before=$(get_home_state)
     run_app
-    echo "Done"
-
-    home_after=$(find $HOME -mindepth 1 -maxdepth 1)
-
-    echo "Get diff files..."
-    app_dirs_and_files=$(get_diff_dir_and_files)
-    echo -e "Generated dir and files: ${app_dirs_and_files}"
-
+    home_after=$(get_home_state)
+    app_dirs_and_files=$(get_home_diff)
     save_app_info_into_db
 else
     mv_dir_and_files_to_home
@@ -317,5 +329,5 @@ else
 fi
 
 mv_dir_and_files_from_home
-echo "Done"
+echo -e "$SCRIPT_RUN: ${ITL}Closing...$NS"
 
