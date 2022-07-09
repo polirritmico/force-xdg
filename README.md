@@ -34,6 +34,9 @@ before and after the first execution to make a folders and files list based on
 the changes.
 
 Options:
+  -c|custom        Change the program identifier to a custom one. Usefull when
+                   launching programs from scripts or when the same program
+                   could be initialized from differents symlinks or paths.
   -f|folder        Manually setup destination folder
                    ($XDG_DATA_HOME/XDG-Wrapper by default)
   -h|help          Display this help message.

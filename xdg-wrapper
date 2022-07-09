@@ -89,10 +89,9 @@ before and after the first execution to make a folders and files list based on
 the changes.
 
 ${BLD}Options:
-$F_OPT  -c|custom        ${NS}Change the program identifier to a custom one.
-                   Usefull when launching programs from scripts
-                   or when the same program could be initialized
-                   from differents symlinks or paths.
+$F_OPT  -c|custom        ${NS}Change the program identifier to a custom one. Usefull when
+                   launching programs from scripts or when the same program
+                   could be initialized from differents symlinks or paths.
 $F_OPT  -f|folder        ${NS}Manually setup destination folder
                    ($ITL"$XDG_WRAPPER_FOLDER"$NS by default)
 $F_OPT  -h|help          ${NS}Display this help message.
@@ -156,7 +155,14 @@ done
 shift $(($OPTIND-1))
 
 #----------------------------------------
-# Prepare and update variables, app info, and user input
+# Check args, prepare and update variables,
+# app info, and user input
+
+if [[ $# -eq 0 ]]; then
+    echo -e "${F_ERR}$SCRIPT_RUN: Error: Missing arguments. Check '-help'."
+    exit 1
+fi
+
 app_name_raw=$1
 if [[ -z $custom_id ]]; then
     app_name="${app_name_raw##*/}"
