@@ -35,12 +35,12 @@ ITL="\e[3m"   # Italic text style
 DF="\e[0m"   # Default style
 
 F_OK="${GREEN}${BLD}OK${NS}"
-_NAME="${ORANGE}"
+F_APP="${ORANGE}"
 F_ERR="\e[0;31m"
 F_CMD="\033[1;36m"
 F_ARG="\033[1;32m"
 F_OPT="\033[1;32m"
-F_APP="\033[1;36m\e[1m${SCRIPT_RUN}:${NS} "
+F_SCR="\033[1;36m\e[1m${SCRIPT_RUN}:${NS} "
 
 
 #-----------------------------------------------------------------------
@@ -150,11 +150,11 @@ done
 shift $(($OPTIND-1))
 
 #----------------------------------------
-# Check for program name and args
+# Check for program name and args. Update app values
 app_name_raw=$1
 app_name="${app_name_raw##*/}"
 app_args="${@:2}" # get all args after first
-_NAME="${_NAME}${app_name}$NS$ITL"
+F_APP="${F_APP}${app_name}$NS$ITL"
 
 if ! command -v ${app_name_raw} > /dev/null 2>&1; then
     echo -e "$F_ERR$SCRIPT_RUN: ERROR: Could't find '$app_name_raw'" \
@@ -170,7 +170,7 @@ fi
 #===============================================================================
 function get_dir_and_files_from_db()
 {
-    echo -en "${F_APP}${ITL}Retrieving info of '${_NAME}' in the db...$NS"
+    echo -en "${F_SCR}${ITL}Retrieving info of '${F_APP}' in the db...$NS"
 
     if [[ ! -e $apps_db_file ]]; then
         echo -e "\n$SCRIPT_RUN: ${ORANGE}${ITL}No db file found.$NS"
@@ -203,7 +203,7 @@ function get_dir_and_files_from_db()
 #===============================================================================
 function save_app_info_into_db()
 {
-    echo -e "${F_APP}${ITL}Storing '${_NAME}' info in the database...$NS"
+    echo -e "${F_SCR}${ITL}Storing '${F_APP}' info in the database...$NS"
     data="$app_name"
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         data="${data};${app_dirs_and_files[i]}"
@@ -211,11 +211,10 @@ function save_app_info_into_db()
     data="${data};"
 
     if [[ ! -f $apps_db_file ]]; then
-        echo -en "${F_APP}${ITL}Creating the database file... "
+        echo -en "${F_SCR}${ITL}Creating the database file... "
     else
-        echo -en "${F_APP}${ITL}Updating the database... "
+        echo -en "${F_SCR}${ITL}Updating the database... "
     fi
-
     echo $data >> $apps_db_file
     echo -e "$F_OK"
 
@@ -234,14 +233,14 @@ function run_app()
     else
         app_command="${ORANGE}${app_name_raw} ${app_args}${NS}${ITL}"
     fi
-    echo -e "${F_APP}${ITL}Running '${app_command}'...$NS"
+    echo -e "${F_SCR}${ITL}Running '${app_command}'...$NS"
     echo -e "$GREEN===================================$NS"
 
     #eval " $app_name_raw $app_args > /dev/null 2>&1"
     eval " $app_name $app_args"
 
     echo -e "\n$GREEN===================================$NS"
-    echo -e "${F_APP}${ITL}Closed '${_NAME}'$NS"
+    echo -e "${F_SCR}${ITL}Closed '${F_APP}'$NS"
 
 }  # ------------  end of function run_app  ------------
 
@@ -253,7 +252,7 @@ function run_app()
 #===============================================================================
 function mv_dir_and_files_to_home()
 {
-    echo -en "${F_APP}${ITL}Moving '${_NAME}' folders to home..."
+    echo -en "${F_SCR}${ITL}Moving '${F_APP}' folders to home..."
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         file=${app_dirs_and_files[i]}
         mv "${XDG_WRAPPER_FOLDER}/${app_name}/${file}" "${HOME}/.${file}"
@@ -270,10 +269,10 @@ function mv_dir_and_files_to_home()
 #===============================================================================
 function mv_dir_and_files_from_home()
 {
-    echo -en "${F_APP}${ITL}Cleaning home...$NS"
+    echo -en "${F_SCR}${ITL}Cleaning home...$NS"
     # Create dir if doesn't exists
     if [[ ! -d "${XDG_WRAPPER_FOLDER}/${app_name}" ]]; then
-        echo -en "\n${F_APP}${ITL}Creating ${_NAME} folder...$NS"
+        echo -en "\n${F_SCR}${ITL}Creating ${F_APP} folder...$NS"
         mkdir "${XDG_WRAPPER_FOLDER}/${app_name}"
     fi
 
@@ -324,7 +323,7 @@ echo -e "$GREEN================$NS"
 # Make XDG_Wrapper data folder
 #-------------------------------------------------------------------------------
 if [[ ! -d "$XDG_WRAPPER_FOLDER" ]]; then
-    echo -en "${F_APP}Creating '${ORANGE}${XDG_DATA_HOME}${NS}${ITL}' folder..."
+    echo -en "${F_SCR}Creating '${ORANGE}${XDG_DATA_HOME}${NS}${ITL}' folder..."
     mkdir "$XDG_WRAPPER_FOLDER"
     echo -e " $F_OK"
 fi
@@ -338,16 +337,16 @@ fi
 get_dir_and_files_from_db
 
 if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
-    echo -e "${F_APP}$ORANGE${ITL}No data of '${_NAME}' in the database$NS"
+    echo -e "${F_SCR}$ORANGE${ITL}No data of '${F_APP}' in the database$NS"
     # Data not found on db, so it is the first program run
     home_before=$(get_home_state)
     run_app
     home_after=$(get_home_state)
 
-    echo -en "${F_APP}${ITL}Getting folders and files in HOME...$NS"
+    echo -en "${F_SCR}${ITL}Getting folders and files in HOME...$NS"
     app_dirs_and_files=$(get_home_diff)
     echo -e " $F_OK"
-    echo -en "${F_APP}${ITL}Obtained list: $NS"
+    echo -en "${F_SCR}${ITL}Obtained list: $NS"
     echo -e "${ORANGE}${app_dirs_and_files}$NS"
 
     save_app_info_into_db
@@ -359,5 +358,5 @@ fi
 #----------------------------------------
 # After program excecution clean the Home
 mv_dir_and_files_from_home
-echo -e "${F_APP}${ITL}Closing...$NS"
+echo -e "${F_SCR}${ITL}Closing...$NS"
 
