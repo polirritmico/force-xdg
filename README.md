@@ -17,10 +17,27 @@ on program run and close between `$HOME` and the `$XDG_DATA_HOME` folder.
 ### From the terminal:
 
 ```command
-xdg-wrapper [PROGRAM] [ARGS]
-
 $ xdg-wrapper -help
 ```
+
+> XDG-Wrapper v0.1
+> A simple BASH script to simulate XDG paths and clean HOME.
+>
+> Usage: xdg-wrapper [OPTION]... [PROGRAM]
+> xdg-wrapper [OPTION]... [PROGRAM] [PROGRAM ARGS]
+>
+> Move hidden polluting files from [HOME] to [XDG_DATA_HOME]/XDG-Wrapper/ folder.
+> When [PROGRAM] is run for the first time is STRONGLY RECOMMENDED to close it
+> immediately to get a clean file list. The script compare the state of [HOME]
+> before and after the first execution to make a folders and files list based on
+> the changes.
+>
+> Options:
+> -f|folder        Manually setup destination folder
+>                  ($XDG_DATA_HOME/XDG-Wrapper by default)
+> -h|help          Display this help message.
+> -v|version       Display the version of XDG-Wrapper and exit.
+
 
 ### With KDE:
 
