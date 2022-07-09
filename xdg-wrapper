@@ -259,7 +259,7 @@ function run_app()
     echo -e "$GREEN===================================$NS"
 
     #eval " $app_name_raw $app_args > /dev/null 2>&1"
-    eval " $app_name $app_args"
+    eval " $app_name_raw $app_args"
 
     echo -e "\n$GREEN===================================$NS"
     echo -e "${F_SCR}${ITL}Closed '${F_APP}'$NS"
