@@ -89,6 +89,10 @@ before and after the first execution to make a folders and files list based on
 the changes.
 
 ${BLD}Options:
+$F_OPT  -c|custom        ${NS}Change the program identifier to a custom one.
+                   Usefull when launching programs from scripts
+                   or when the same program could be initialized
+                   from differents symlinks or paths.
 $F_OPT  -f|folder        ${NS}Manually setup destination folder
                    ($ITL"$XDG_WRAPPER_FOLDER"$NS by default)
 $F_OPT  -h|help          ${NS}Display this help message.
@@ -103,6 +107,7 @@ $F_OPT  -v|version       ${NS}Display the version of $SCRIPT_NAME and exit."
 #-------------------------------------------------------------------------------
 
 custom_folder=""
+custom_id=""
 
 apps_db=()
 apps_db_file="$XDG_WRAPPER_FOLDER"/db
@@ -118,7 +123,7 @@ home_after=""
 #-------------------------------------------------------------------------------
 #  Handle command line arguments
 #-------------------------------------------------------------------------------
-while getopts ":hv:f" opt
+while getopts ":hv:c:f" opt
     do
         case $opt in
             h|help)
@@ -130,10 +135,11 @@ while getopts ":hv:f" opt
                 version
                 exit 0
                 ;;
+            c|custom)
+                custom_id=$OPTARG
+                ;;
             f|folder)
                 custom_folder=$OPTARG
-                echo -e "$SCRIPT_NAME: Not implemented.\n"
-                exit 1
                 ;;
             :)
                 echo -e "$SCRIPT_NAME: Invalid option: '-$OPTARG' requires an argument\n"
@@ -150,18 +156,28 @@ done
 shift $(($OPTIND-1))
 
 #----------------------------------------
-# Check for program name and args. Update app values
+# Prepare and update variables, app info, and user input
 app_name_raw=$1
-app_name="${app_name_raw##*/}"
+if [[ -z $custom_id ]]; then
+    app_name="${app_name_raw##*/}"
+else
+    app_name="$custom_id"
+fi
 app_args="${@:2}" # get all args after first
-F_APP="${F_APP}${app_name}$NS$ITL"
 
+if [[ -n ${custom_folder} ]]; then
+    XDG_WRAPPER_FOLDER="${custom_folder}"
+fi
+
+# Check if passed app exist on the system
 if ! command -v ${app_name_raw} > /dev/null 2>&1; then
     echo -e "$F_ERR$SCRIPT_RUN: ERROR: Could't find '$app_name_raw'" \
             " on the system.$NS"
     exit 1
 fi
 
+# Output formating helper Format appname
+F_APP="${F_APP}${app_name}$NS$ITL"
 
 
 #===  FUNCTION  ================================================================
