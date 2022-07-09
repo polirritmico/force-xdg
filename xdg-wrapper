@@ -159,7 +159,7 @@ shift $(($OPTIND-1))
 # app info, and user input
 
 if [[ $# -eq 0 ]]; then
-    echo -e "${F_ERR}$SCRIPT_RUN: Error: Missing arguments. Check '-help'."
+    echo -e "${F_ERR}$SCRIPT_RUN: Error: Missing arguments. Check '-help'.$NS"
     exit 1
 fi
 
