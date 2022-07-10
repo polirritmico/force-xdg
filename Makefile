@@ -28,7 +28,3 @@ version:
 	@sed -nr 's/SCRIPT_VERSION="([0-9]\..*)"/Updated to version: \1/p' xdg-wrapper
 	@echo -e "$(DONE)$(NS)"
 
-
-#@sed -nr 's/__version__ = "([0-9]\..*)"/Updated to version: \1/p' src/bakupipe.py
-#@echo -e "$(DONE)$(NS)"
-
