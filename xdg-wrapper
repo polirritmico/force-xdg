@@ -23,7 +23,7 @@ SCRIPT_NAME="XDG-Wrapper"
 SCRIPT_RUN="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 XDG_WRAPPER_FOLDER="$XDG_DATA_HOME"/XDG-Wrapper
-DEPENDENCIES=( "getopts" "sed" "grep" "awk" )
+DEPENDENCIES=( "getopts" "sed" "grep" "diff" "sort" )
 
 #----------------------------------------
 # Terminal output font styles and colors
@@ -240,6 +240,7 @@ function save_app_info_into_db()
         echo -en "${F_SCR}${ITL}Updating the database... "
     fi
     echo $data >> $apps_db_file
+    sort -o $apps_db_file $apps_db_file
     echo -e "$F_OK"
 
 }  # ------------  end of function save_app_info_into_db  ------------
@@ -372,7 +373,6 @@ fi
 # Else, use the data to move the folders to HOME
 #-------------------------------------------------------------------------------
 
-#if [[ ! $(get_dir_and_files_from_db) == 0 ]]; then
 get_dir_and_files_from_db
 
 if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
