@@ -2,7 +2,7 @@
 
 #=== SH_SCRIPT  ================================================================
 #         NAME:   XDG-Wrapper
-#  DESCRIPTION:   A simple BASH script to simulate XDG paths and clean HOME.
+#  DESCRIPTION:   A BASH script to simulate XDG paths and clean HOME.
 #         DATE:   2022/07/07
 #===============================================================================
 
@@ -17,7 +17,7 @@ set -euo pipefail
 #  Global settings
 #-----------------------------------------------------------------------
 SCRIPT_VERSION="0.4"
-SHORT_DESCRIPTION="A simple BASH script to simulate XDG paths and clean HOME."
+SHORT_DESCRIPTION="A BASH script to simulate XDG paths and clean HOME."
 SCRIPT_NAME="XDG-Wrapper"
 # Get the real script filename even through a symbolic link
 SCRIPT_RUN="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
@@ -123,7 +123,7 @@ home_after=""
 #-------------------------------------------------------------------------------
 #  Handle command line arguments
 #-------------------------------------------------------------------------------
-while getopts ":hv:c:f" opt
+while getopts ":hvc:f:" opt
     do
         case $opt in
             h|help)
