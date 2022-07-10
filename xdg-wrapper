@@ -292,10 +292,10 @@ function mv_dir_and_files_to_home()
 #===============================================================================
 function mv_dir_and_files_from_home()
 {
-    echo -en "${F_SCR}${ITL}Cleaning home...$NS"
+    echo -en "${F_SCR}${ITL}Cleaning home...$NS "
     # Create dir if doesn't exists
     if [[ ! -d "${XDG_WRAPPER_FOLDER}/${app_name}" ]]; then
-        echo -en "\n${F_SCR}${ITL}Creating ${F_APP} folder...$NS"
+        echo -en "\n${F_SCR}${ITL}Creating ${F_APP} folder...$NS "
         mkdir "${XDG_WRAPPER_FOLDER}/${app_name}"
     fi
 
@@ -304,7 +304,7 @@ function mv_dir_and_files_from_home()
         file=${app_dirs_and_files[i]}
         mv "$HOME/.$file" "${XDG_WRAPPER_FOLDER}/$app_name/$file"
     done
-    echo -e " $F_OK"
+    echo -e "$F_OK"
 
 }  # ------------  end of function mv_dir_and_files_from_home  ------------
 
