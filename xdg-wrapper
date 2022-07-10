@@ -278,6 +278,16 @@ function run_app()
 function mv_dir_and_files_to_home()
 {
     echo -en "${F_SCR}${ITL}Moving '${F_APP}' folders to home..."
+    # First check if a folder/file already exist to prevent data loss
+    for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
+        file=${app_dirs_and_files[i]}
+        if [[ ! -e $file ]]; then
+            echo -e "\n$BLD$F_ERR${SCRIPT_RUN}: $NS" \
+                    "${F_ERR}Error: '$file' already exist in home folder.$NS"
+            exit 1
+        fi
+    done
+    # Now we move the files and folders
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         file=${app_dirs_and_files[i]}
         mv "${XDG_WRAPPER_FOLDER}/${app_name}/${file}" "${HOME}/.${file}"
