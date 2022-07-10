@@ -22,4 +22,13 @@ install:
 	@cp xdg-wrapper $(TARGET_FOLDER_INSTALLATION)/$(TARGET_SCRIPT_NAME)
 	@echo -e "$(DONE)$(NS)"
 
+version:
+	@echo "Updating subversion..."
+	@sed -ri 's/(SCRIPT_VERSION=)\"([0-9])\.(.*)\"/echo "\1\\"\2.$$((\3+1))\\""/ge' xdg-wrapper
+	@sed -nr 's/SCRIPT_VERSION="([0-9]\..*)"/Updated to version: \1/p' xdg-wrapper
+	@echo -e "$(DONE)$(NS)"
+
+
+#@sed -nr 's/__version__ = "([0-9]\..*)"/Updated to version: \1/p' src/bakupipe.py
+#@echo -e "$(DONE)$(NS)"
 
