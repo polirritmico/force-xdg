@@ -16,6 +16,7 @@ default:
 	@echo -e "Use 'make install' to copy $(TARGET_SCRIPT_NAME) into $(TARGET_FOLDER_INSTALLATION)"
 
 install:
+	@echo "Installing '$(SOURCE_SCRIPT_NAME)' into '$(TARGET_FOLDER_INSTALLATION)/'..."
 	@chmod +x $(SOURCE_SCRIPT_NAME)
 	@cp xdg-wrapper $(TARGET_FOLDER_INSTALLATION)/$(TARGET_SCRIPT_NAME)
 	@echo -e "$(DONE)$(NS)"
