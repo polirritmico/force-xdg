@@ -228,6 +228,7 @@ function save_app_info_into_db()
 {
     echo -e "${F_SCR}${ITL}Storing '${F_APP}' info in the database...$NS"
     data="$app_name"
+
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         data="${data};${app_dirs_and_files[i]}"
     done
@@ -325,11 +326,26 @@ function get_home_state()
 #===  FUNCTION  ================================================================
 #         NAME:   Get home diff
 #  DESCRIPTION:   Compare the before and after list and get the dirs and files
-#                 created by the app. Also remove $HOME and the dot from path.
+#                 created by the app into app_dirs_and_files variable. Also
+#                 remove '$HOME/.' from each path.
 #===============================================================================
 function get_home_diff()
 {
-    echo $(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}") | sed "s|$HOME/\.||g")
+    echo -en "${F_SCR}${ITL}Getting folders and files in HOME...$NS "
+
+    # Get only diff entries between home_before and home_after
+    app_dirs_and_files=$(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}") || true)
+    # Remove $HOME/. from the path of each entry
+    app_dirs_and_files=$(sed "s|$HOME/\.||g" <<< $app_dirs_and_files)
+    # Convert into an array
+    app_dirs_and_files=($app_dirs_and_files)
+
+    echo -e "$F_OK"
+    echo -en "${F_SCR}${ITL}Obtained elements: $NS"
+    for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
+        echo -en "${BLD}'${app_dirs_and_files[i]}' "
+    done
+    echo -e "$NS"
 
 }  # ------------  end of function get_home_diff  ------------
 
@@ -366,12 +382,7 @@ if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
     run_app
     home_after=$(get_home_state)
 
-    echo -en "${F_SCR}${ITL}Getting folders and files in HOME...$NS"
-    app_dirs_and_files=$(get_home_diff)
-    echo -e " $F_OK"
-    echo -en "${F_SCR}${ITL}Obtained list: $NS"
-    echo -e "${ORANGE}${app_dirs_and_files}$NS"
-
+    get_home_diff
     save_app_info_into_db
 else
     mv_dir_and_files_to_home
