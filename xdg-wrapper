@@ -16,7 +16,7 @@ set -euo pipefail
 #-----------------------------------------------------------------------
 #  Global settings
 #-----------------------------------------------------------------------
-SCRIPT_VERSION="0.3"
+SCRIPT_VERSION="0.4"
 SHORT_DESCRIPTION="A simple BASH script to simulate XDG paths and clean HOME."
 SCRIPT_NAME="XDG-Wrapper"
 # Get the real script filename even through a symbolic link
