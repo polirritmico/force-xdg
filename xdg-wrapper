@@ -89,9 +89,10 @@ before and after the first execution to make a folders and files list based on
 the changes.
 
 ${BLD}Options:
-$F_OPT  -c|custom        ${NS}Change the program identifier to a custom one. Usefull when
-                   launching programs from scripts or when the same program
-                   could be initialized from differents symlinks or paths.
+$F_OPT  -c|custom        ${NS}Change the program identifier to a custom one. Usefull
+                   when launching programs from scripts or when the same
+                   program could be initialized from differents symlinks
+                   or paths.
 $F_OPT  -f|folder        ${NS}Manually setup destination folder
                    ($ITL"$XDG_WRAPPER_FOLDER"$NS by default)
 $F_OPT  -h|help          ${NS}Display this help message.
