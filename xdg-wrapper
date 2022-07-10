@@ -281,8 +281,8 @@ function mv_dir_and_files_to_home()
     # First check if a folder/file already exist to prevent data loss
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         file=${app_dirs_and_files[i]}
-        if [[ ! -e $file ]]; then
-            echo -e "\n$BLD$F_ERR${SCRIPT_RUN}: $NS" \
+        if [[ -e "${HOME}/.${file}" ]]; then
+            echo -e "\n$F_ERR${SCRIPT_RUN}:$NS"\
                     "${F_ERR}Error: '$file' already exist in home folder.$NS"
             exit 1
         fi
