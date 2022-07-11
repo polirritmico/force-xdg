@@ -142,13 +142,13 @@ while getopts ":hvc:f:" opt
                 custom_folder=$OPTARG
                 ;;
             :)
-                echo -e "$SCRIPT_NAME: Invalid option: '-$OPTARG' requires an argument\n"
-                help
+                echo -e "$F_ERR$SCRIPT_NAME: Invalid option: '-$OPTARG'" \
+                        "requires an argument. Check '-help'.$NS"
                 exit 1
                 ;;
             *)
-                echo -e "$SCRIPT_NAME: Invalid option: '-$OPTARG'\n"
-                help
+                echo -e "$F_ERR$SCRIPT_NAME: Invalid option: '-$OPTARG'." \
+                        "Check '-help'.$NS"
                 exit 1
                 ;;
     esac
@@ -160,7 +160,8 @@ shift $(($OPTIND-1))
 
 # Check arguments
 if [[ $# -eq 0 ]]; then
-    echo -e "${F_ERR}$SCRIPT_RUN: Error: Missing arguments. Check '${SCRIPT_RUN} -help'.$NS"
+    echo -e "${F_ERR}$SCRIPT_RUN: Error: Missing arguments." \
+            "Check '${SCRIPT_RUN} -help'.$NS"
     exit 1
 fi
 
@@ -198,13 +199,13 @@ F_APP="${F_APP}${app_name}$NS$ITL"
 #===============================================================================
 function get_dir_and_files_from_db()
 {
-    echo -en "${F_SCR}${ITL}Retrieving info of '${F_APP}' in the db...$NS"
+    echo -en "${F_SCR}${ITL}Retrieving info of '${F_APP}' in the db...$NS "
 
     if [[ ! -e $apps_db_file ]]; then
         echo -e "\n$SCRIPT_RUN: ${ORANGE}${ITL}No db file found.$NS"
         return
     else
-        echo -e " ${F_OK}"
+        echo -e "${F_OK}"
     fi
 
     IFS=$'\n'
@@ -218,6 +219,7 @@ function get_dir_and_files_from_db()
 
         # Get the array without first entry (app_name)
         app_dirs_and_files=("${line[@]:1}")
+        break
     done
 
     unset IFS
@@ -226,12 +228,12 @@ function get_dir_and_files_from_db()
 
 
 #===  FUNCTION  ================================================================
-#         NAME:   Get home diff
+#         NAME:   Get home diff list
 #  DESCRIPTION:   Compare the before and after list and get the dirs and files
 #                 created by the app into app_dirs_and_files variable. Also
 #                 remove '$HOME/.' from each path.
 #===============================================================================
-function get_home_diff()
+function get_home_diff_list()
 {
     echo -en "${F_SCR}${ITL}Getting folders and files in HOME...$NS "
 
@@ -249,19 +251,19 @@ function get_home_diff()
     done
     echo -e "$NS"
 
-}  # ------------  end of function get_home_diff  ------------
+}  # ------------  end of function get_home_diff_list  ------------
 
 
 
 #===  FUNCTION  ================================================================
-#         NAME:   Get HOME state
+#         NAME:   Get HOME folders and files list
 #  DESCRIPTION:   Returns the current list of folders and files in HOME.
 #===============================================================================
-function get_home_state()
+function get_home_folders_and_files_list()
 {
     echo "$(find $HOME -mindepth 1 -maxdepth 1)"
 
-}  # ------------  end of function get_home_state  ------------
+}  # ------------  end of function get_home_folders_and_files_list  ------------
 
 
 
@@ -272,9 +274,9 @@ function get_home_state()
 function make_data_folder()
 {
     if [[ ! -d "$XDG_WRAPPER_FOLDER" ]]; then
-        echo -en "${F_SCR}Creating '$ORANGE$XDG_DATA_HOME$NS$ITL' folder..."
+        echo -en "${F_SCR}Creating '$ORANGE$XDG_DATA_HOME$NS$ITL' folder... "
         mkdir "$XDG_WRAPPER_FOLDER"
-        echo -e " $F_OK"
+        echo -e "$F_OK"
     fi
 
 }  # ------------  end of function make_data_folder  ------------
@@ -312,7 +314,7 @@ function mv_dir_and_files_from_home()
 function mv_dir_and_files_to_home()
 {
     echo -en "${F_SCR}${ITL}Moving '${F_APP}' folders to home..."
-    # First check if a folder/file already exist to prevent data loss
+    # First check if any folder/file already exist to prevent data loss
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         file=${app_dirs_and_files[i]}
         if [[ -e "${HOME}/.${file}" ]]; then
@@ -334,7 +336,7 @@ function mv_dir_and_files_to_home()
 
 #===  FUNCTION  ================================================================
 #         NAME:   Run app
-#  DESCRIPTION:   Check if the app_name exists, then run it.
+#  DESCRIPTION:   Get appname command with args and run it
 #===============================================================================
 function run_app()
 {
@@ -358,7 +360,7 @@ function run_app()
 
 #===  FUNCTION  ================================================================
 #         NAME:   Save app info into db
-#  DESCRIPTION:   Save the appname, dirs and folders into the database.
+#  DESCRIPTION:   Save the appname, dirs and folders (data) into the database.
 #===============================================================================
 function save_app_info_into_db()
 {
@@ -384,7 +386,7 @@ function save_app_info_into_db()
 
 
 #===============================================================================
-# BEGINNING OF SCRIPT WORK
+# BEGINNING OF SCRIPT OPERATIONS
 #===============================================================================
 
 echo -e "$BLD$SCRIPT_NAME v$SCRIPT_VERSION"
@@ -395,17 +397,16 @@ make_data_folder
 # If program data is not found on the db, generate the file and folders list.
 # Else, use the data to move the folders to HOME
 #-------------------------------------------------------------------------------
-
 get_dir_and_files_from_db
 
 if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
     echo -e "${F_SCR}$ORANGE${ITL}No data of '${F_APP}' in the database$NS"
-    # Data not found on db, so it is the first program run
-    home_before=$(get_home_state)
+    # Data not found on db, so we get the diff list of folders/files of home
+    home_before=$(get_home_folders_and_files_list)
     run_app
-    home_after=$(get_home_state)
+    home_after=$(get_home_folders_and_files_list)
+    get_home_diff_list
 
-    get_home_diff
     save_app_info_into_db
 else
     mv_dir_and_files_to_home
