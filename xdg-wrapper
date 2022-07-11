@@ -19,11 +19,12 @@ set -euo pipefail
 SCRIPT_VERSION="0.4"
 SHORT_DESCRIPTION="A BASH script to simulate XDG paths and clean HOME."
 SCRIPT_NAME="XDG-Wrapper"
-# Get the real script filename even through a symbolic link
-SCRIPT_RUN="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 XDG_WRAPPER_FOLDER="$XDG_DATA_HOME"/"$SCRIPT_NAME"
 DEPENDENCIES=( "getopts" "sed" "grep" "diff" "sort" )
+
+# Get the real script filename even through a symbolic link
+SCRIPT_RUN="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 #----------------------------------------
 # Terminal output font styles and colors
@@ -171,7 +172,8 @@ else
     app_name="${app_name_raw##*/}" # remove path
 fi
 
-app_args="${@:2}" # get all args after program ($1)
+# Get all args after program (>$1)
+app_args="${@:2}"
 
 # Use custom folder if setted
 if [[ -n ${custom_folder} ]]; then
@@ -185,8 +187,9 @@ if ! command -v ${app_name_raw} > /dev/null 2>&1; then
     exit 1
 fi
 
-# Output formating helper Format appname
+# Output helper for echo (appname with format)
 F_APP="${F_APP}${app_name}$NS$ITL"
+
 
 
 #===  FUNCTION  ================================================================
@@ -223,53 +226,82 @@ function get_dir_and_files_from_db()
 
 
 #===  FUNCTION  ================================================================
-#         NAME:   Save app info into db
-#  DESCRIPTION:   Save the appname, dirs and folders into the database.
+#         NAME:   Get home diff
+#  DESCRIPTION:   Compare the before and after list and get the dirs and files
+#                 created by the app into app_dirs_and_files variable. Also
+#                 remove '$HOME/.' from each path.
 #===============================================================================
-function save_app_info_into_db()
+function get_home_diff()
 {
-    echo -e "${F_SCR}${ITL}Storing '${F_APP}' info in the database...$NS"
-    data="$app_name"
+    echo -en "${F_SCR}${ITL}Getting folders and files in HOME...$NS "
 
-    for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
-        data="${data};${app_dirs_and_files[i]}"
-    done
-    data="${data};"
+    # Get only diff entries between home_before and home_after
+    app_dirs_and_files=$(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}") || true)
+    # Remove $HOME/. from the path of each entry
+    app_dirs_and_files=$(sed "s|$HOME/\.||g" <<< $app_dirs_and_files)
+    # Convert into an array
+    app_dirs_and_files=($app_dirs_and_files)
 
-    if [[ ! -f $apps_db_file ]]; then
-        echo -en "${F_SCR}${ITL}Creating the database file... "
-    else
-        echo -en "${F_SCR}${ITL}Updating the database... "
-    fi
-    echo $data >> $apps_db_file
-    sort -o $apps_db_file $apps_db_file
     echo -e "$F_OK"
+    echo -en "${F_SCR}${ITL}Obtained elements: $NS"
+    for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
+        echo -en "${BLD}'${app_dirs_and_files[i]}' "
+    done
+    echo -e "$NS"
 
-}  # ------------  end of function save_app_info_into_db  ------------
+}  # ------------  end of function get_home_diff  ------------
 
 
 
 #===  FUNCTION  ================================================================
-#         NAME:   Run app
-#  DESCRIPTION:   Check if the app_name exists, then run it.
+#         NAME:   Get HOME state
+#  DESCRIPTION:   Returns the current list of folders and files in HOME.
 #===============================================================================
-function run_app()
+function get_home_state()
 {
-    if [[ -z $app_args ]]; then
-        app_command="${ORANGE}${app_name_raw}${NS}${ITL}"
-    else
-        app_command="${ORANGE}${app_name_raw} ${app_args}${NS}${ITL}"
+    echo "$(find $HOME -mindepth 1 -maxdepth 1)"
+
+}  # ------------  end of function get_home_state  ------------
+
+
+
+#===  FUNCTION  ================================================================
+#         NAME:   Make data folder
+#  DESCRIPTION:   If XDG_WRAPPER_FOLDER doesn't exist create it.
+#===============================================================================
+function make_data_folder()
+{
+    if [[ ! -d "$XDG_WRAPPER_FOLDER" ]]; then
+        echo -en "${F_SCR}Creating '$ORANGE$XDG_DATA_HOME$NS$ITL' folder..."
+        mkdir "$XDG_WRAPPER_FOLDER"
+        echo -e " $F_OK"
     fi
-    echo -e "${F_SCR}${ITL}Running '${app_command}'...$NS"
-    echo -e "$GREEN===================================$NS"
 
-    #eval " $app_name_raw $app_args > /dev/null 2>&1"
-    eval " $app_name_raw $app_args"
+}  # ------------  end of function make_data_folder  ------------
 
-    echo -e "\n$GREEN===================================$NS"
-    echo -e "${F_SCR}${ITL}Closed '${F_APP}'$NS"
 
-}  # ------------  end of function run_app  ------------
+
+#===  FUNCTION  ================================================================
+#         NAME:   Mv dir and files from home
+#  DESCRIPTION:   Move dirs and files in the db from $HOME to XDG wrapper dir.
+#===============================================================================
+function mv_dir_and_files_from_home()
+{
+    echo -en "${F_SCR}${ITL}Cleaning home...$NS "
+    # Create dir if doesn't exists
+    if [[ ! -d "${XDG_WRAPPER_FOLDER}/${app_name}" ]]; then
+        echo -en "\n${F_SCR}${ITL}Creating ${F_APP} folder...$NS "
+        mkdir "${XDG_WRAPPER_FOLDER}/${app_name}"
+    fi
+
+    # Move the dir and files
+    for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
+        file=${app_dirs_and_files[i]}
+        mv "$HOME/.$file" "${XDG_WRAPPER_FOLDER}/$app_name/$file"
+    done
+    echo -e "$F_OK"
+
+}  # ------------  end of function mv_dir_and_files_from_home  ------------
 
 
 
@@ -301,66 +333,53 @@ function mv_dir_and_files_to_home()
 
 
 #===  FUNCTION  ================================================================
-#         NAME:   Mv dir and files from home
-#  DESCRIPTION:   Move dirs and files in the db from $HOME to XDG wrapper dir.
+#         NAME:   Run app
+#  DESCRIPTION:   Check if the app_name exists, then run it.
 #===============================================================================
-function mv_dir_and_files_from_home()
+function run_app()
 {
-    echo -en "${F_SCR}${ITL}Cleaning home...$NS "
-    # Create dir if doesn't exists
-    if [[ ! -d "${XDG_WRAPPER_FOLDER}/${app_name}" ]]; then
-        echo -en "\n${F_SCR}${ITL}Creating ${F_APP} folder...$NS "
-        mkdir "${XDG_WRAPPER_FOLDER}/${app_name}"
+    if [[ -z $app_args ]]; then
+        app_command="${ORANGE}${app_name_raw}${NS}${ITL}"
+    else
+        app_command="${ORANGE}${app_name_raw} ${app_args}${NS}${ITL}"
     fi
+    echo -e "${F_SCR}${ITL}Running '${app_command}'...$NS"
+    echo -e "$GREEN===================================$NS"
 
-    # Move the dir and files
-    for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
-        file=${app_dirs_and_files[i]}
-        mv "$HOME/.$file" "${XDG_WRAPPER_FOLDER}/$app_name/$file"
-    done
-    echo -e "$F_OK"
+    #eval " $app_name_raw $app_args > /dev/null 2>&1"
+    eval " $app_name_raw $app_args"
 
-}  # ------------  end of function mv_dir_and_files_from_home  ------------
+    echo -e "\n$GREEN===================================$NS"
+    echo -e "${F_SCR}${ITL}Closed '${F_APP}'$NS"
 
-
-
-#===  FUNCTION  ================================================================
-#         NAME:   Get HOME state
-#  DESCRIPTION:   Get the current list of folders and files in HOME.
-#===============================================================================
-function get_home_state()
-{
-    echo "$(find $HOME -mindepth 1 -maxdepth 1)"
-
-}  # ------------  end of function get_home_state  ------------
+}  # ------------  end of function run_app  ------------
 
 
 
 #===  FUNCTION  ================================================================
-#         NAME:   Get home diff
-#  DESCRIPTION:   Compare the before and after list and get the dirs and files
-#                 created by the app into app_dirs_and_files variable. Also
-#                 remove '$HOME/.' from each path.
+#         NAME:   Save app info into db
+#  DESCRIPTION:   Save the appname, dirs and folders into the database.
 #===============================================================================
-function get_home_diff()
+function save_app_info_into_db()
 {
-    echo -en "${F_SCR}${ITL}Getting folders and files in HOME...$NS "
+    echo -e "${F_SCR}${ITL}Storing '${F_APP}' info in the database...$NS"
+    data="$app_name"
 
-    # Get only diff entries between home_before and home_after
-    app_dirs_and_files=$(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}") || true)
-    # Remove $HOME/. from the path of each entry
-    app_dirs_and_files=$(sed "s|$HOME/\.||g" <<< $app_dirs_and_files)
-    # Convert into an array
-    app_dirs_and_files=($app_dirs_and_files)
-
-    echo -e "$F_OK"
-    echo -en "${F_SCR}${ITL}Obtained elements: $NS"
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
-        echo -en "${BLD}'${app_dirs_and_files[i]}' "
+        data="${data};${app_dirs_and_files[i]}"
     done
-    echo -e "$NS"
+    data="${data};"
 
-}  # ------------  end of function get_home_diff  ------------
+    if [[ ! -f $apps_db_file ]]; then
+        echo -en "${F_SCR}${ITL}Creating the database file... "
+    else
+        echo -en "${F_SCR}${ITL}Updating the database... "
+    fi
+    echo $data >> $apps_db_file
+    sort -o $apps_db_file $apps_db_file
+    echo -e "$F_OK"
+
+}  # ------------  end of function save_app_info_into_db  ------------
 
 
 
@@ -370,15 +389,7 @@ function get_home_diff()
 
 echo -e "$BLD$SCRIPT_NAME v$SCRIPT_VERSION"
 echo -e "$GREEN===================================$NS"
-
-#-------------------------------------------------------------------------------
-# Make XDG_Wrapper data folder
-#-------------------------------------------------------------------------------
-if [[ ! -d "$XDG_WRAPPER_FOLDER" ]]; then
-    echo -en "${F_SCR}Creating '${ORANGE}${XDG_DATA_HOME}${NS}${ITL}' folder..."
-    mkdir "$XDG_WRAPPER_FOLDER"
-    echo -e " $F_OK"
-fi
+make_data_folder
 
 #-------------------------------------------------------------------------------
 # If program data is not found on the db, generate the file and folders list.
