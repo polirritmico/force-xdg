@@ -22,7 +22,7 @@ SCRIPT_NAME="XDG-Wrapper"
 # Get the real script filename even through a symbolic link
 SCRIPT_RUN="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
-XDG_WRAPPER_FOLDER="$XDG_DATA_HOME"/XDG-Wrapper
+XDG_WRAPPER_FOLDER="$XDG_DATA_HOME"/"$SCRIPT_NAME"
 DEPENDENCIES=( "getopts" "sed" "grep" "diff" "sort" )
 
 #----------------------------------------
@@ -30,9 +30,8 @@ DEPENDENCIES=( "getopts" "sed" "grep" "diff" "sort" )
 GREEN="\033[0;32m"
 ORANGE="\033[0;33m"
 NS="\033[0m" # No color
-BLD="\e[1m" # Bold text style
-ITL="\e[3m"   # Italic text style
-DF="\e[0m"   # Default style
+BLD="\e[1m"  # Bold text style
+ITL="\e[3m"  # Italic text style
 
 F_OK="${GREEN}${BLD}OK${NS}"
 F_APP="${ORANGE}"
@@ -103,7 +102,7 @@ $F_OPT  -v|version       ${NS}Display the version of $SCRIPT_NAME and exit."
 
 
 #-------------------------------------------------------------------------------
-#  Default variables
+#  Global variables
 #-------------------------------------------------------------------------------
 
 custom_folder=""
@@ -156,22 +155,25 @@ done
 shift $(($OPTIND-1))
 
 #----------------------------------------
-# Check args, prepare and update variables,
-# app info, and user input
+# Check and update global vars
 
+# Check arguments
 if [[ $# -eq 0 ]]; then
     echo -e "${F_ERR}$SCRIPT_RUN: Error: Missing arguments. Check '${SCRIPT_RUN} -help'.$NS"
     exit 1
 fi
 
+# Get app name
 app_name_raw=$1
-if [[ -z $custom_id ]]; then
-    app_name="${app_name_raw##*/}"
-else
+if [[ -n $custom_id ]]; then # -n: not empty
     app_name="$custom_id"
+else
+    app_name="${app_name_raw##*/}" # remove path
 fi
-app_args="${@:2}" # get all args after first
 
+app_args="${@:2}" # get all args after program ($1)
+
+# Use custom folder if setted
 if [[ -n ${custom_folder} ]]; then
     XDG_WRAPPER_FOLDER="${custom_folder}"
 fi
