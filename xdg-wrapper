@@ -16,7 +16,7 @@ set -euo pipefail
 #-----------------------------------------------------------------------
 #  Global settings
 #-----------------------------------------------------------------------
-SCRIPT_VERSION="0.6"
+SCRIPT_VERSION="0.7"
 SHORT_DESCRIPTION="A BASH script to simulate XDG paths and clean HOME."
 SCRIPT_NAME="XDG-Wrapper"
 
@@ -200,7 +200,7 @@ fi
 #===============================================================================
 function get_dir_and_files_from_db()
 {
-    echo -en "${F_SCR}${ITL}Retrieving info of '${F_APP}' in the db...$NS "
+    echo -en "${F_SCR}${ITL}Retrieving data of '${F_APP}' in the db...$NS "
 
     if [[ ! -e $apps_db_file ]]; then
         echo -e "\n$SCRIPT_RUN: ${F_WAR}No db file found.$NS"
@@ -234,7 +234,7 @@ function get_dir_and_files_from_db()
 #===============================================================================
 function get_home_diff_list()
 {
-    echo -en "${F_SCR}${ITL}Getting folders and files in HOME...$NS "
+    echo -en "${F_SCR}${ITL}Getting hidden dirs/files created in HOME...$NS "
 
     # Get only diff entries between home_before and home_after
     app_dirs_and_files=$(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}") || true)
@@ -419,7 +419,7 @@ else
 fi
 
 #----------------------------------------
-# After program excecution clean the Home
+# After program excecution clean Home
 mv_dirs_and_files_from_home
 echo -e "${F_SCR}${ITL}Closing...$NS"
 
