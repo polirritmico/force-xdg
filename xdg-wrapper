@@ -16,7 +16,7 @@ set -euo pipefail
 #-----------------------------------------------------------------------
 #  Global settings
 #-----------------------------------------------------------------------
-SCRIPT_VERSION="0.5"
+SCRIPT_VERSION="0.6"
 SHORT_DESCRIPTION="A BASH script to simulate XDG paths and clean HOME."
 SCRIPT_NAME="XDG-Wrapper"
 
@@ -41,6 +41,7 @@ F_CMD="\033[1;36m"
 F_ARG="\033[1;32m"
 F_OPT="\033[1;32m"
 F_SCR="\033[1;36m\e[1m${SCRIPT_RUN}:${NS} "
+F_WAR="\033[0;33m\e[3m"
 
 
 #-----------------------------------------------------------------------
@@ -202,7 +203,7 @@ function get_dir_and_files_from_db()
     echo -en "${F_SCR}${ITL}Retrieving info of '${F_APP}' in the db...$NS "
 
     if [[ ! -e $apps_db_file ]]; then
-        echo -e "\n$SCRIPT_RUN: ${ORANGE}${ITL}No db file found.$NS"
+        echo -e "\n$SCRIPT_RUN: ${F_WAR}No db file found.$NS"
         return
     else
         echo -e "${F_OK}"
@@ -229,7 +230,7 @@ function get_dir_and_files_from_db()
 #         NAME:   Get home diff list
 #  DESCRIPTION:   Compare the before and after list and get the dirs and files
 #                 created by the app into app_dirs_and_files variable. Also
-#                 remove '$HOME/.' from each path.
+#                 remove non dot files/folders and '$HOME/.' from each path.
 #===============================================================================
 function get_home_diff_list()
 {
@@ -237,8 +238,13 @@ function get_home_diff_list()
 
     # Get only diff entries between home_before and home_after
     app_dirs_and_files=$(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}") || true)
+
+    # Remove non dot folders/files
+    app_dirs_and_files=$(grep "$HOME/\." <<< $app_dirs_and_files)
+
     # Remove $HOME/. from the path of each entry
     app_dirs_and_files=$(sed "s|$HOME/\.||g" <<< $app_dirs_and_files)
+
     # Convert into an array
     app_dirs_and_files=($app_dirs_and_files)
 
@@ -398,7 +404,7 @@ make_data_folder
 get_dir_and_files_from_db
 
 if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
-    echo -e "${F_SCR}$ORANGE${ITL}No data of '${F_APP}' in the database$NS"
+    echo -e "${F_SCR}${F_WAR}No data of '${F_APP}${F_WAR}' in the database.$NS"
     # Data not found on db, so we get the diff list of folders/files of home
     home_before=$(get_home_folders_and_files_list)
     run_app
