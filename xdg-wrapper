@@ -173,6 +173,9 @@ else
     app_name="${app_name_raw##*/}" # remove path
 fi
 
+# Output helper for echo (appname with format)
+F_APP="${F_APP}${app_name}$NS$ITL"
+
 # Get all args after program (>$1)
 app_args="${@:2}"
 
@@ -187,9 +190,6 @@ if ! command -v ${app_name_raw} > /dev/null 2>&1; then
             " on the system.$NS"
     exit 1
 fi
-
-# Output helper for echo (appname with format)
-F_APP="${F_APP}${app_name}$NS$ITL"
 
 
 
@@ -213,13 +213,11 @@ function get_dir_and_files_from_db()
 
     for (( i=0; i<${#apps_db[@]}; i++ )); do
         IFS=$';'; line=(${apps_db[$i]}) # Split line by ";" into an array
-        if [[ ${line[0]} != $app_name ]]; then
-            continue
+        if [[ ${line[0]} == $app_name ]]; then
+            # Get the array without first entry (app_name)
+            app_dirs_and_files=("${line[@]:1}")
+            break
         fi
-
-        # Get the array without first entry (app_name)
-        app_dirs_and_files=("${line[@]:1}")
-        break
     done
 
     unset IFS
@@ -284,10 +282,10 @@ function make_data_folder()
 
 
 #===  FUNCTION  ================================================================
-#         NAME:   Mv dir and files from home
+#         NAME:   Mv dirs and files from home
 #  DESCRIPTION:   Move dirs and files in the db from $HOME to XDG wrapper dir.
 #===============================================================================
-function mv_dir_and_files_from_home()
+function mv_dirs_and_files_from_home()
 {
     echo -en "${F_SCR}${ITL}Cleaning home...$NS "
     # Create dir if doesn't exists
@@ -296,22 +294,22 @@ function mv_dir_and_files_from_home()
         mkdir "${XDG_WRAPPER_FOLDER}/${app_name}"
     fi
 
-    # Move the dir and files
+    # Move the dirs and files
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         file=${app_dirs_and_files[i]}
         mv "$HOME/.$file" "${XDG_WRAPPER_FOLDER}/$app_name/$file"
     done
     echo -e "$F_OK"
 
-}  # ------------  end of function mv_dir_and_files_from_home  ------------
+}  # ------------  end of function mv_dirs_and_files_from_home  ------------
 
 
 
 #===  FUNCTION  ================================================================
-#         NAME:   Move dir and files to home
-#  DESCRIPTION:   Move dirs and files in the db.
+#         NAME:   Move dirs and files to home
+#  DESCRIPTION:   Move dirs and files readed from the db to Home.
 #===============================================================================
-function mv_dir_and_files_to_home()
+function mv_dirs_and_files_to_home()
 {
     echo -en "${F_SCR}${ITL}Moving '${F_APP}' folders to home..."
     # First check if any folder/file already exist to prevent data loss
@@ -330,7 +328,7 @@ function mv_dir_and_files_to_home()
     done
     echo -e " $F_OK"
 
-}  # ------------  end of function mv_dir_and_files_to_home  ------------
+}  # ------------  end of function mv_dirs_and_files_to_home  ------------
 
 
 
@@ -409,12 +407,12 @@ if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
 
     save_app_info_into_db
 else
-    mv_dir_and_files_to_home
+    mv_dirs_and_files_to_home
     run_app
 fi
 
 #----------------------------------------
 # After program excecution clean the Home
-mv_dir_and_files_from_home
+mv_dirs_and_files_from_home
 echo -e "${F_SCR}${ITL}Closing...$NS"
 
