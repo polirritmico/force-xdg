@@ -94,7 +94,6 @@ $F_OPT  -c|custom        ${NS}Change the program identifier to a custom one. Use
                    when launching programs from scripts or when the same
                    program could be initialized from differents symlinks
                    or paths.
-$F_OPT  -a|all           ${NS}Handles all dirs/files, even non-hidden ones.
 $F_OPT  -f|folder        ${NS}Manually setup destination folder
                    ($ITL"$XDG_WRAPPER_FOLDER"$NS by default)
 $F_OPT  -h|help          ${NS}Display this help message.
@@ -110,7 +109,6 @@ $F_OPT  -v|version       ${NS}Display the version of $SCRIPT_NAME and exit."
 
 custom_folder=""
 custom_id=""
-mode_all_dirs_and_files=false
 
 apps_db=()
 apps_db_file="$XDG_WRAPPER_FOLDER"/db
@@ -126,7 +124,7 @@ home_after=""
 #-------------------------------------------------------------------------------
 #  Handle command line arguments
 #-------------------------------------------------------------------------------
-while getopts ":hvac:f:" opt
+while getopts ":hvc:f:" opt
     do
         case $opt in
             h|help)
@@ -137,9 +135,6 @@ while getopts ":hvac:f:" opt
             v|version)
                 version
                 exit 0
-                ;;
-            a|all)
-                mode_all_dirs_and_files=true
                 ;;
             c|custom)
                 custom_id=$OPTARG
@@ -245,13 +240,10 @@ function get_home_diff_list()
     app_dirs_and_files=$(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}") || true)
 
     # Remove non dot folders/files
-    if [[ $mode_all_dirs_and_files = false ]]; then
-        app_dirs_and_files=$(grep "$HOME/\." <<< $app_dirs_and_files)
-    fi
+    app_dirs_and_files=$(grep "$HOME/\." <<< $app_dirs_and_files)
 
     # Remove $HOME/. from the path of each entry
-    #app_dirs_and_files=$(sed "s|$HOME/\.||g" <<< $app_dirs_and_files)
-    app_dirs_and_files=$(sed -r "s|$HOME/\.?||g" <<< $app_dirs_and_files)
+    app_dirs_and_files=$(sed "s|$HOME/\.||g" <<< $app_dirs_and_files)
 
     # Convert into an array
     app_dirs_and_files=($app_dirs_and_files)
@@ -403,8 +395,6 @@ function save_app_info_into_db()
 
 echo -e "$BLD$SCRIPT_NAME v$SCRIPT_VERSION"
 echo -e "$GREEN===================================$NS"
-
-#TODO: Echo all passed options and modes
 
 make_data_folder
 
