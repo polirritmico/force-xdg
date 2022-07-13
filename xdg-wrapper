@@ -16,7 +16,7 @@ set -euo pipefail
 #-----------------------------------------------------------------------
 #  Global settings
 #-----------------------------------------------------------------------
-SCRIPT_VERSION="0.7"
+SCRIPT_VERSION="0.8"
 SHORT_DESCRIPTION="A BASH script to simulate XDG paths and clean HOME."
 SCRIPT_NAME="XDG-Wrapper"
 
@@ -42,6 +42,7 @@ F_ARG="\033[1;32m"
 F_OPT="\033[1;32m"
 F_SCR="\033[1;36m\e[1m${SCRIPT_RUN}:${NS} "
 F_WAR="\033[0;33m\e[3m"
+F_SEP="$GREEN==============================================================$NS"
 
 
 #-----------------------------------------------------------------------
@@ -49,8 +50,8 @@ F_WAR="\033[0;33m\e[3m"
 #-----------------------------------------------------------------------
 missing_deps=0
 for dependency in "${DEPENDENCIES[@]}"; do
-    if ! command -v $dependency > /dev/null 2>&1; then
-        echo -e "$RED$SCRIPT_RUN: Could't find '$dependency' on the system."\
+    if ! command -v "$dependency" > /dev/null 2>&1 ; then
+        echo -e "$F_ERR$SCRIPT_RUN: Could't find '$dependency' on the system."\
                                  "Check if is installed.$NS"
         ((++missing_deps))
     fi
@@ -80,8 +81,8 @@ function version()
 #===============================================================================
 function help()
 {
-    echo -e "${BLD}Usage: $F_CMD$SCRIPT_RUN $F_ARG[OPTION]... [PROGRAM]$NS
-       $F_CMD$SCRIPT_RUN $F_ARG[OPTION]... [PROGRAM] [PROGRAM ARGS]$NS
+    echo -e "${BLD}Usage: $F_CMD$SCRIPT_RUN ${F_ARG}[OPTION]... [PROGRAM]$NS
+       $F_CMD$SCRIPT_RUN ${F_ARG}[OPTION]... [PROGRAM] [PROGRAM ARGS]$NS
 
 Move hidden polluting files from [HOME] to [XDG_DATA_HOME]/XDG-Wrapper/ folder.
 When [PROGRAM] is run for the first time is STRONGLY RECOMMENDED to close it
@@ -95,7 +96,7 @@ $F_OPT  -c|custom        ${NS}Change the program identifier to a custom one. Use
                    program could be initialized from differents symlinks
                    or paths.
 $F_OPT  -f|folder        ${NS}Manually setup destination folder
-                   ($ITL"$XDG_WRAPPER_FOLDER"$NS by default)
+                   ($ITL$XDG_WRAPPER_FOLDER$NS by default)
 $F_OPT  -h|help          ${NS}Display this help message.
 $F_OPT  -v|version       ${NS}Display the version of $SCRIPT_NAME and exit."
 
@@ -113,8 +114,8 @@ custom_id=""
 apps_db=()
 apps_db_file="$XDG_WRAPPER_FOLDER"/db
 
+app_name_raw=""
 app_name=""
-app_name_clean=""
 app_args=""
 app_dirs_and_files=()
 home_before=""
@@ -154,7 +155,7 @@ while getopts ":hvc:f:" opt
                 ;;
     esac
 done
-shift $(($OPTIND-1))
+shift $((OPTIND-1))
 
 #----------------------------------------
 # Check and update global vars
@@ -178,7 +179,7 @@ fi
 F_APP="${F_APP}${app_name}$NS$ITL"
 
 # Get all args after program (>$1)
-app_args="${@:2}"
+app_args=( "${*:2}" )
 
 # Use custom folder if setted
 if [[ -n ${custom_folder} ]]; then
@@ -186,7 +187,7 @@ if [[ -n ${custom_folder} ]]; then
 fi
 
 # Check if passed app exist on the system
-if ! command -v ${app_name_raw} > /dev/null 2>&1; then
+if ! command -v "$app_name_raw" > /dev/null 2>&1; then
     echo -e "$F_ERR$SCRIPT_RUN: ERROR: Could't find '$app_name_raw'" \
             " on the system.$NS"
     exit 1
@@ -200,28 +201,28 @@ fi
 #===============================================================================
 function get_dir_and_files_from_db()
 {
-    echo -en "${F_SCR}${ITL}Retrieving data of '${F_APP}' in the db...$NS "
+    echo -en "${F_SCR}${ITL}Retrieving data of '${F_APP}' in the db:$NS "
 
     if [[ ! -e $apps_db_file ]]; then
-        echo -e "\n$SCRIPT_RUN: ${F_WAR}No db file found.$NS"
+        echo -e "\n${F_SCR}${F_WAR}No db file found.$NS"
         return
     else
-        echo -e "${F_OK}"
+        echo -e "$F_OK"
     fi
 
-    IFS=$'\n'
-    apps_db=($(cat "$apps_db_file"))
+    # Get apps_db_file content into an array
+    mapfile -t apps_db < <(cat "$apps_db_file")
 
     for (( i=0; i<${#apps_db[@]}; i++ )); do
-        IFS=$';'; line=(${apps_db[$i]}) # Split line by ";" into an array
-        if [[ ${line[0]} == $app_name ]]; then
+        # Split line with ";" into an array
+        IFS=";" read -r -a line <<< "${apps_db[$i]}"
+
+        if [[ ${line[0]} == "$app_name" ]]; then
             # Get the array without first entry (app_name)
             app_dirs_and_files=("${line[@]:1}")
             break
         fi
     done
-
-    unset IFS
 }  # ------------  end of function get_dir_and_files_from_db  ------------
 
 
@@ -236,17 +237,19 @@ function get_home_diff_list()
 {
     echo -en "${F_SCR}${ITL}Getting hidden dirs/files created in HOME...$NS "
 
+    local differences=""
+
     # Get only diff entries between home_before and home_after
-    app_dirs_and_files=$(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}") || true)
+    differences=$(diff --changed-group-format='%>' --unchanged-group-format='' <(echo -e "${home_before}") <(echo -e "${home_after}") || true)
 
     # Remove non dot folders/files
-    app_dirs_and_files=$(grep "$HOME/\." <<< $app_dirs_and_files)
+    differences=$(grep "$HOME/\." <<< "$differences")
 
     # Remove $HOME/. from the path of each entry
-    app_dirs_and_files=$(sed "s|$HOME/\.||g" <<< $app_dirs_and_files)
+    differences=$(sed "s|$HOME/\.||g" <<< "$differences")
 
     # Convert into an array
-    app_dirs_and_files=($app_dirs_and_files)
+    mapfile -t app_dirs_and_files <<< "$differences"
 
     echo -e "$F_OK"
     echo -en "${F_SCR}${ITL}Obtained elements: $NS"
@@ -265,7 +268,7 @@ function get_home_diff_list()
 #===============================================================================
 function get_home_folders_and_files_list()
 {
-    echo "$(find $HOME -mindepth 1 -maxdepth 1)"
+    find "$HOME" -mindepth 1 -maxdepth 1
 
 }  # ------------  end of function get_home_folders_and_files_list  ------------
 
@@ -296,7 +299,7 @@ function mv_dirs_and_files_from_home()
     echo -en "${F_SCR}${ITL}Cleaning home...$NS "
     # Create dir if doesn't exists
     if [[ ! -d "${XDG_WRAPPER_FOLDER}/${app_name}" ]]; then
-        echo -en "\n${F_SCR}${ITL}Creating ${F_APP} folder...$NS "
+        echo -en "\n${F_SCR}${ITL}And also creating the '$F_APP' folder...$NS "
         mkdir "${XDG_WRAPPER_FOLDER}/${app_name}"
     fi
 
@@ -344,18 +347,18 @@ function mv_dirs_and_files_to_home()
 #===============================================================================
 function run_app()
 {
-    if [[ -z $app_args ]]; then
+    if [[ -z ${app_args[0]} ]]; then
         app_command="${ORANGE}${app_name_raw}${NS}${ITL}"
     else
         app_command="${ORANGE}${app_name_raw} ${app_args}${NS}${ITL}"
     fi
-    echo -e "${F_SCR}${ITL}Running '${app_command}'...$NS"
-    echo -e "$GREEN===================================$NS"
+    echo -e "${F_SCR}${ITL}Running '${app_command}':$NS"
+    echo -e "$F_SEP"
 
     #eval " $app_name_raw $app_args > /dev/null 2>&1"
     eval " $app_name_raw $app_args"
 
-    echo -e "\n$GREEN===================================$NS"
+    echo -e "\n$F_SEP"
     echo -e "${F_SCR}${ITL}Closed '${F_APP}'$NS"
 
 }  # ------------  end of function run_app  ------------
@@ -368,7 +371,7 @@ function run_app()
 #===============================================================================
 function save_app_info_into_db()
 {
-    echo -e "${F_SCR}${ITL}Storing '${F_APP}' info in the database...$NS"
+    echo -e "${F_SCR}${ITL}Storing '${F_APP}' info in the database:$NS"
     data="$app_name"
 
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
@@ -381,8 +384,8 @@ function save_app_info_into_db()
     else
         echo -en "${F_SCR}${ITL}Updating the database... "
     fi
-    echo $data >> $apps_db_file
-    sort -o $apps_db_file $apps_db_file
+    echo "$data" >> "$apps_db_file"
+    sort -o "$apps_db_file" "$apps_db_file"
     echo -e "$F_OK"
 
 }  # ------------  end of function save_app_info_into_db  ------------
@@ -394,7 +397,7 @@ function save_app_info_into_db()
 #===============================================================================
 
 echo -e "$BLD$SCRIPT_NAME v$SCRIPT_VERSION"
-echo -e "$GREEN===================================$NS"
+echo -e "$F_SEP"
 
 make_data_folder
 
