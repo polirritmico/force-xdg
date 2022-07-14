@@ -40,15 +40,15 @@ make install
 
 ### First run:
 
+When the program is run through XDG-Wrapper for the first time, the script will
+read the state of the dot folders and files of home and compare it with the
+state after closing the program, saving the list of new folders and files into
+`$XDG_DATA_HOME/XDG-Wrapper/db`.
+ 
 > Is ***strongly recommended*** to close the program as soon as posible on its
 > first run to get a clean file list as any dot-folders or files generated
 > while the program is running for first time will be added to the program's
 > list.
-
-To generate the list of files and folders created by the program, when the
-program is launched for the first time (no previous `~/.program` folders and
-files exists) the script will read the state of home dot folders and files, and
-compare it with the state after closing the program.
 
 ### From the terminal:
 
@@ -90,20 +90,24 @@ XDG-Wrapper works great with KDE, simply edit the program launcher:
 3. In the **Command** section add xdg-wrapper before the binary.
 4. Save.
 5. Launch the program from the KDE menu or Krunner.
+6. Close the program.
+7. Enjoy a clean home folder.
 
 For example lets config _Audacity_:
 
-On `kmenuedit`, search for _"Audacity"_ and click the proper result.
-The command section reads this:
+On `kmenuedit`, search for _"Audacity"_ and click on the proper result.
+The command section should read something like this:
 
 ```
 env UBUNTU_MENUPROXY=0 audacity %F
 ```
-
-It has a "env variable", then the program, and finally a "place holder". Just
-add xdg-wrapper before the command will do the trick:
+It has a "env variable" (most launchers don't have that), then the program, and
+finally a "place holder". Simply adding ***xdg-wrapper*** before the command
+will do the trick:
 
 ```
 env UBUNTU_MENUPROXY=0 xdg-wrapper audacity %F
 ```
+
+Done!
 
