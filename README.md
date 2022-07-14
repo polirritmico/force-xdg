@@ -47,7 +47,7 @@ state after closing the program, saving the list of new folders and files into
 
 ```command
 $ cat ~/.local/share/XDG-Wrapper/db | grep steam
-steam;steampid;steampath;steam;pki
+steam;steampid;steampath;steam;pki;
 ```
  
 > Is ***strongly recommended*** to close the program as soon as posible on its
