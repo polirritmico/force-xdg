@@ -11,8 +11,8 @@ When the program is launched, the script will move the content of the
 `$XDG_DATA_HOME/XDG-Wrapper/APP/` folder into `$HOME` and after closing it will
 move the folders and files back to `$XDG_DATA_HOME/XDG-Wrapper/APP/`.
 
-> It is worth mentioning that moving files on the same filesystem in GNU/Linux is
-> really fast since only the _directory entries_ are modified.
+> _Moving files on the same filesystem in GNU/Linux is really fast since only
+> the_ directory entries _are modified._
 
 For example if ***Steam*** is launched through XDG-Wrapper:
 
