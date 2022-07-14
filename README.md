@@ -51,9 +51,8 @@ steam;steampid;steampath;steam;pki;
 ```
  
 > Is ***strongly recommended*** to close the program as soon as posible on its
-> first run to get a clean file list as any dot-folders or files generated
-> while the program is running for first time will be added to the program's
-> list.
+> first run to get a clean file list as any dot-folder or file generated while
+> the program is running for first time will be added to the program's list.
 
 ### From the terminal:
 
