@@ -11,8 +11,8 @@ When the program is launched, the script will move the content of the
 `$XDG_DATA_HOME/XDG-Wrapper/APP/` folder into `$HOME` and after closing it will
 move the folders and files back to `$XDG_DATA_HOME/XDG-Wrapper/APP/`.
 
-It is worth mentioning that moving files on the same filsystem in GNU/Linux is
-really fast since only _directory entries_ are modified.
+> It is worth mentioning that moving files on the same filesystem in GNU/Linux is
+> really fast since only the _directory entries_ are modified.
 
 For example if ***Steam*** is launched through XDG-Wrapper:
 
@@ -24,11 +24,6 @@ It will move from `~/.local/share/XDG-Wrapper/steam/` the folders and files
 `pki/`, `steam/`, `steampath` and `steampid` to `~/.pki`, `~/.steam`,
 `~/.steampath` and `~/.steampid`. After ***Steam*** is closed, it will move
 those elements back to `~/.local/share/XDG-Wrapper/steam/`.
-
-To generate the list of files and folders created by the program, when the
-program is launched for the first time (no previous `~/.program` folders and
-files exists) the script will read the state of home dot folders and files, and
-compare it with the state after closing the program.
 
 ## Installation
 
@@ -43,12 +38,17 @@ make install
 
 ## Usage
 
-**On first program run:**
+### First run:
 
 > Is ***strongly recommended*** to close the program as soon as posible on its
 > first run to get a clean file list as any dot-folders or files generated
 > while the program is running for first time will be added to the program's
 > list.
+
+To generate the list of files and folders created by the program, when the
+program is launched for the first time (no previous `~/.program` folders and
+files exists) the script will read the state of home dot folders and files, and
+compare it with the state after closing the program.
 
 ### From the terminal:
 
