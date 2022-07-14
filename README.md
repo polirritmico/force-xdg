@@ -22,8 +22,8 @@ $ xdg-wrapper steam
 
 It will move from `~/.local/share/XDG-Wrapper/steam/` the folders and files
 `pki/`, `steam/`, `steampath` and `steampid` to `~/.pki`, `~/.steam`,
-`~/.steampath` and `~/.steampid`. After ***Steam*** is closed, it will move
-those elements back to `~/.local/share/XDG-Wrapper/steam/`.
+`~/.steampath` and `~/.steampid` accordingly. After ***Steam*** is closed, it
+will move those elements back to `~/.local/share/XDG-Wrapper/steam/`.
 
 ## Installation
 
