@@ -1,14 +1,16 @@
 XDG-Wrapper
 ===========
 
-A BASH script to launch non xdg compliant programs to fake a XDG structure. It
-will move the `$XDG_DATA_HOME/APP` folder to `$HOME/.APP` before launch and
-move to `XDG_DATA_HOME/APP` the folder when the programm is closed.
+A BASH script to force non XDG compliant programs to store its hidden Home
+folders into a XDG path. It will move the `$XDG_DATA_HOME/APP` folder to
+`$HOME/.APP` before launch and move the folder to `XDG_DATA_HOME/APP` after the
+programm is closed.
+
 
 ## Installation
 
-Just copy it to `/usr/local/bin/` or any of your custom paths.
-Also `make` can be used to do it automatically:
+Just copy it to `/usr/local/bin/` or any of your custom paths. Also `make` can
+be used to do it automatically (which also configure BASH auto-completion):
 
 ```
 git clone https://github.com/polirritmico/xdg-wrapper.git
@@ -46,8 +48,8 @@ the changes.
 Options:
   -c|custom        Change the program identifier to a custom one. Usefull when
                    launching programs from scripts or when the same program
-                   could be initialized from differents symlinks or paths.
-  -f|folder        Manually setup destination folder
+                   could be initialized from symlinks with different filenames.
+  -f|folder        Manually setup the destination folder
                    ($XDG_DATA_HOME/XDG-Wrapper by default)
   -h|help          Display this help message.
   -v|version       Display the version of XDG-Wrapper and exit.
@@ -55,19 +57,27 @@ Options:
 
 ### With KDE:
 
-1. Open `kmenuedit` (Right click on KDE menu → Edit applications).
-2. Find the program in the **Search bar**, e.g. _"Audacity"_, and click on it.
-3. In the **Command** section add xdg-wrapper before the binary. For Audacity:
+XDG-Wrapper works great with KDE, simply edit the program launcher:
 
-Command before:
+1. Open `kmenuedit` (Right click on KDE menu → Edit applications).
+2. Find the program with the **Search bar** and click on its icon.
+3. In the **Command** section add xdg-wrapper before the binary.
+4. Save.
+5. Launch the program from the KDE menu or Krunner.
+
+For example lets config _Audacity_:
+
+On `kmenuedit`, search for _"Audacity"_ and click the proper result.
+The command section reads this:
+
 ```
 env UBUNTU_MENUPROXY=0 audacity %F
 ```
 
-Command after:
+It has a "env variable", then the program, and finally a "place holder". Just
+add xdg-wrapper before the command will do the trick:
+
 ```
 env UBUNTU_MENUPROXY=0 xdg-wrapper audacity %F
 ```
-4. Save
-5. Launch the program from the KDE menu or Krunner.
 
