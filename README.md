@@ -1,11 +1,31 @@
 XDG-Wrapper
 ===========
 
-A BASH script to force non XDG compliant programs to store its hidden Home
-folders into a XDG path. It will move the `$XDG_DATA_HOME/APP` folder to
-`$HOME/.APP` before launch and move the folder to `XDG_DATA_HOME/APP` after the
-programm is closed.
+A BASH script to force non _XDG Base Directory_ compliant programs to store its
+hidden home folders into a XDG Data path.
 
+## Description
+
+When the program is launched, the script will move the content of the
+`$XDG_DATA_HOME/XDG-WRAPPER/APP/` folder into `$HOME` and after closing it
+the script will move the folders and files back to
+`$XDG_DATA_HOME/XDG-WRAPPER/APP/`.
+
+For example if ***Steam*** is launched through XDG-Wrapper:
+
+```command
+$ XDG-Wrapper steam
+```
+
+It will move from `~/.local/share/XDG-Wrapper/steam/` the folders/files `pki/`,
+`steam/`, `steampath` and `steampid` to `~/.pki/`, `~/.steam/`, `~/.steampath`
+and `~/.steampid`. After ***Steam*** is closed, it will move those elements
+back to `~/.local/share/XDG-Wrapper/steam/`.
+
+To detect the list of files and folders created by the program, on the first
+program launch (no previous `~/.app` folder and files exists) the script will
+read the state of home dot folders and files, and compare it with the state
+after closing the program.
 
 ## Installation
 
@@ -19,20 +39,19 @@ make install
 
 ## Usage
 
-When running for the first time a program with `xdg-wrapper` the script make a
-list of files and folders before and after the execution and store in a little
-text file to handle the hidden directories and files. Is ***strongly
-recommended*** to close the program on its first run with the script as soon as
-posible to get a clean file list. This list is used by the script to move files
-on program run and close between `$HOME` and the `$XDG_DATA_HOME` folder.
+> Is ***strongly recommended*** to close the program as soon as posible on its
+> first run to get a clean file list, as any dot-folders or files generated while
+> the program is running for first time will be added to the program's list.
 
 ### From the terminal:
 
 ```command
-$ xdg-wrapper -help
+$ xdg-wrapper PROGRAM
 ```
 
 ```command
+$ xdg-wrapper -help
+
 XDG-Wrapper v0.1
 A simple BASH script to simulate XDG paths and clean HOME.
 
