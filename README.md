@@ -1,4 +1,4 @@
-XDG-Wrapper :house::barber:
+XDG-Wrapper :house::wrench:
 ===========================
 
 A BASH script to force non-compliant _XDG Base Directory_ programs to store
