@@ -43,7 +43,12 @@ make install
 When the program is run through XDG-Wrapper for the first time, the script will
 read the state of the dot folders and files of home and compare it with the
 state after closing the program, saving the list of new folders and files into
-`$XDG_DATA_HOME/XDG-Wrapper/db`.
+`$XDG_DATA_HOME/XDG-Wrapper/db`. For example:
+
+```command
+$ cat ~/.local/share/XDG-Wrapper/db | grep steam
+steam;steampid;steampath;steam;pki
+```
  
 > Is ***strongly recommended*** to close the program as soon as posible on its
 > first run to get a clean file list as any dot-folders or files generated
