@@ -11,6 +11,9 @@ When the program is launched, the script will move the content of the
 `$XDG_DATA_HOME/XDG-Wrapper/APP/` folder into `$HOME` and after closing it will
 move the folders and files back to `$XDG_DATA_HOME/XDG-Wrapper/APP/`.
 
+It is worth mentioning that moving files on the same filsystem in GNU/Linux is
+really fast since only _directory entries_ are modified.
+
 For example if ***Steam*** is launched through XDG-Wrapper:
 
 ```command
@@ -29,9 +32,9 @@ compare it with the state after closing the program.
 
 ## Installation
 
-Just copy the script to `/usr/local/bin/` or any location of your paths.
-As an alternative, `make` can be used to do it automatically (which also
-install BASH auto-completion):
+Just copy the script to `/usr/local/bin/` or any location of your paths. As an
+alternative `make` can be used to do it automatically (which also install BASH
+auto-completion):
 
 ```
 git clone https://github.com/polirritmico/xdg-wrapper.git
@@ -43,8 +46,9 @@ make install
 **On first program run:**
 
 > Is ***strongly recommended*** to close the program as soon as posible on its
-> first run to get a clean file list, as any dot-folders or files generated while
-> the program is running for first time will be added to the program's list.
+> first run to get a clean file list as any dot-folders or files generated
+> while the program is running for first time will be added to the program's
+> list.
 
 ### From the terminal:
 
