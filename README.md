@@ -1,36 +1,37 @@
 XDG-Wrapper
 ===========
 
-A BASH script to force non _XDG Base Directory_ compliant programs to store its
-hidden home folders into a XDG Data path.
+A BASH script to force non-compliant _XDG Base Directory_ programs to store
+their hidden dot folders and files in the XDG Data path instead of polluting
+`$HOME`.
 
 ## Description
 
 When the program is launched, the script will move the content of the
-`$XDG_DATA_HOME/XDG-WRAPPER/APP/` folder into `$HOME` and after closing it
-the script will move the folders and files back to
-`$XDG_DATA_HOME/XDG-WRAPPER/APP/`.
+`$XDG_DATA_HOME/XDG-Wrapper/APP/` folder into `$HOME` and after closing it will
+move the folders and files back to `$XDG_DATA_HOME/XDG-Wrapper/APP/`.
 
 For example if ***Steam*** is launched through XDG-Wrapper:
 
 ```command
-$ XDG-Wrapper steam
+$ xdg-wrapper steam
 ```
 
-It will move from `~/.local/share/XDG-Wrapper/steam/` the folders/files `pki/`,
-`steam/`, `steampath` and `steampid` to `~/.pki/`, `~/.steam/`, `~/.steampath`
-and `~/.steampid`. After ***Steam*** is closed, it will move those elements
-back to `~/.local/share/XDG-Wrapper/steam/`.
+It will move from `~/.local/share/XDG-Wrapper/steam/` the folders and files
+`pki/`, `steam/`, `steampath` and `steampid` to `~/.pki`, `~/.steam`,
+`~/.steampath` and `~/.steampid`. After ***Steam*** is closed, it will move
+those elements back to `~/.local/share/XDG-Wrapper/steam/`.
 
-To detect the list of files and folders created by the program, on the first
-program launch (no previous `~/.app` folder and files exists) the script will
-read the state of home dot folders and files, and compare it with the state
-after closing the program.
+To generate the list of files and folders created by the program, when the
+program is launched for the first time (no previous `~/.program` folders and
+files exists) the script will read the state of home dot folders and files, and
+compare it with the state after closing the program.
 
 ## Installation
 
-Just copy it to `/usr/local/bin/` or any of your custom paths. Also `make` can
-be used to do it automatically (which also configure BASH auto-completion):
+Just copy the script to `/usr/local/bin/` or any location of your paths.
+As an alternative, `make` can be used to do it automatically (which also
+install BASH auto-completion):
 
 ```
 git clone https://github.com/polirritmico/xdg-wrapper.git
@@ -49,7 +50,7 @@ make install
 $ xdg-wrapper PROGRAM
 ```
 
-```command
+```
 $ xdg-wrapper -help
 
 XDG-Wrapper v0.1
