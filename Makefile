@@ -28,7 +28,7 @@ install-tab-completion:
 	@echo -e "- Adding bash-completion online script into:"
 	@echo -e "  \"$(AUTO_COMPLETE_PATH)\""
 	@mkdir -p "$(AUTO_COMPLETE_PATH)"
-	@echo -e "#!/usr/bin/env bash\ncomplete -c xdg-wrapper" >> $(AUTO_COMPLETE_PATH)/$(SOURCE_SCRIPT_NAME)
+	@echo -e "#!/usr/bin/env bash\ncomplete -c xdg-wrapper" > $(AUTO_COMPLETE_PATH)/$(SOURCE_SCRIPT_NAME)
 	@echo -e "$(DONE)$(NS)"
 
 version:
