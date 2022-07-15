@@ -232,6 +232,7 @@ function get_dir_and_files_from_db()
 #  DESCRIPTION:   Compare the before and after list and get the dirs and files
 #                 created by the app into app_dirs_and_files variable. Also
 #                 remove non dot files/folders and '$HOME/.' from each path.
+#                 If there's no new folders or files, exit the script.
 #===============================================================================
 function get_home_diff_list()
 {
@@ -242,6 +243,12 @@ function get_home_diff_list()
     # Get only diff entries between home_before and home_after
     differences=$(diff --changed-group-format='%>' --unchanged-group-format=''\
                   <(echo -e "$home_before") <(echo -e "$home_after") || true)
+
+    if [[ -z "$differences" ]]; then
+        echo -e "$F_SCR${ITL}No new dirs or files detected. Nothing to do."
+        echo -e "$F_SCR${ITL}Closing...$NS"
+        exit
+    fi
 
     # Remove non dot folders/files
     differences=$(grep "$HOME/\." <<< "$differences")
@@ -282,7 +289,8 @@ function get_home_folders_and_files_list()
 function make_data_folder()
 {
     if [[ ! -d "$XDG_WRAPPER_FOLDER" ]]; then
-        echo -en "${F_SCR}Creating '$ORANGE$XDG_DATA_HOME$NS$ITL' folder... "
+        echo -en "${F_SCR}Creating '$ORANGE"\
+                 "$XDG_WRAPPER_FOLDER$NS$ITL' folder... "
         mkdir "$XDG_WRAPPER_FOLDER"
         echo -e "$F_OK"
     fi
@@ -400,8 +408,6 @@ function save_app_info_into_db()
 echo -e "$BLD$SCRIPT_NAME v$SCRIPT_VERSION"
 echo -e "$F_SEP"
 
-make_data_folder
-
 #-------------------------------------------------------------------------------
 # If program data is not found on the db, generate the file and folders list.
 # Else, use the data to move the folders to HOME
@@ -414,16 +420,18 @@ if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
     home_before=$(get_home_folders_and_files_list)
     run_app
     home_after=$(get_home_folders_and_files_list)
+    # Get diff beetwen before and after states.
+    # If there are no new files or folders, exist.
     get_home_diff_list
 
+    make_data_folder
     save_app_info_into_db
 else
     mv_dirs_and_files_to_home
     run_app
 fi
 
-#----------------------------------------
-# After program excecution clean Home
 mv_dirs_and_files_from_home
-echo -e "${F_SCR}${ITL}Closing...$NS"
+echo -e "$F_SCR${ITL}Closing...$NS"
+exit
 
