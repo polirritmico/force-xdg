@@ -33,7 +33,7 @@ set -euo pipefail
 #-----------------------------------------------------------------------
 #  Global settings
 #-----------------------------------------------------------------------
-SCRIPT_VERSION="0.9"
+SCRIPT_VERSION="0.10"
 SHORT_DESCRIPTION="A BASH script to force XDG paths for programs polluting HOME."
 SCRIPT_NAME="XDG-Wrapper"
 
@@ -112,7 +112,7 @@ $F_OPT  -c|custom        ${NS}Change the program identifier to a custom one. Use
                    when launching programs from scripts or when the same
                    program could be initialized from differents symlinks
                    or paths.
-$F_OPT  -f|folder        ${NS}Manually setup destination folder
+$F_OPT  -f|folder        ${NS}Manually set XDG-Wrapper data folder
                    ($ITL$XDG_WRAPPER_FOLDER$NS by default)
 $F_OPT  -h|help          ${NS}Display this help message.
 $F_OPT  -v|version       ${NS}Display the version of $SCRIPT_NAME and exit."
