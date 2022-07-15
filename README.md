@@ -93,15 +93,15 @@ Options:
 
 XDG-Wrapper works great with KDE, simply edit the program launcher:
 
-1. Open `kmenuedit` (Right click on KDE menu → Edit applications).
-2. Find the program with the **Search bar** and click on its icon.
-3. In the **Command** section add xdg-wrapper before the binary.
+1. Open the KDE main menu.
+2. Find the program → Right click → "Edit application" → Application tab.
+3. In the **Command** section, add _xdg-wrapper_ before the binary call.
 4. Save.
 5. Launch the program from the KDE menu or Krunner.
 6. Close the program.
 7. Enjoy a clean home folder.
 
-For example lets config _Audacity_:
+For example let's configure _Audacity_:
 
 On `kmenuedit`, search for _"Audacity"_ and click on the proper result.
 The command section should read something like this:
