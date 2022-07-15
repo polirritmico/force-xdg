@@ -5,6 +5,8 @@ A BASH script to force non-compliant _XDG Base Directory_ programs to store
 their hidden dot folders and files in the XDG Data path instead of polluting
 `$HOME`.
 
+![XDG-Wrapper running](docs/screenshot_01.png)
+
 ## Description
 
 When the program is launched, the script will move the content of the
@@ -24,6 +26,8 @@ It will move from `~/.local/share/XDG-Wrapper/steam/` the folders and files
 `pki/`, `steam/`, `steampath` and `steampid` to `~/.pki`, `~/.steam`,
 `~/.steampath` and `~/.steampid` accordingly. After ***Steam*** is closed, it
 will move those elements back to `~/.local/share/XDG-Wrapper/steam/`.
+
+![Example](docs/example.png)
 
 ## Installation
 
