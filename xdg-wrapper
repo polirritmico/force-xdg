@@ -2,7 +2,7 @@
 
 #=== SH_SCRIPT  ================================================================
 #         NAME:   XDG-Wrapper
-#  DESCRIPTION:   A BASH script to simulate XDG paths and clean HOME.
+#  DESCRIPTION:   A BASH script to force XDG paths for programs polluting HOME.
 #         DATE:   2022/07/07
 #===============================================================================
 
@@ -17,7 +17,7 @@ set -euo pipefail
 #  Global settings
 #-----------------------------------------------------------------------
 SCRIPT_VERSION="0.9"
-SHORT_DESCRIPTION="A BASH script to simulate XDG paths and clean HOME."
+SHORT_DESCRIPTION="A BASH script to force XDG paths for programs polluting HOME."
 SCRIPT_NAME="XDG-Wrapper"
 
 XDG_WRAPPER_FOLDER="$XDG_DATA_HOME"/"$SCRIPT_NAME"
