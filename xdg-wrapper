@@ -16,7 +16,7 @@ set -euo pipefail
 #-----------------------------------------------------------------------
 #  Global settings
 #-----------------------------------------------------------------------
-SCRIPT_VERSION="0.8"
+SCRIPT_VERSION="0.9"
 SHORT_DESCRIPTION="A BASH script to simulate XDG paths and clean HOME."
 SCRIPT_NAME="XDG-Wrapper"
 
@@ -430,6 +430,9 @@ else
     mv_dirs_and_files_to_home
     run_app
 fi
+
+#----------------------------------------
+# Cleaning home
 
 mv_dirs_and_files_from_home
 echo -e "$F_SCR${ITL}Closing...$NS"
