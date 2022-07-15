@@ -201,6 +201,7 @@ app_args=( "${*:2}" )
 # Use custom folder if setted
 if [[ -n ${custom_folder} ]]; then
     XDG_WRAPPER_FOLDER="${custom_folder}"
+    apps_db_file="$XDG_WRAPPER_FOLDER"/db
 fi
 
 # Check if passed app exist on the system
