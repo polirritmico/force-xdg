@@ -421,7 +421,7 @@ if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
     run_app
     home_after=$(get_home_folders_and_files_list)
     # Get diff beetwen before and after states.
-    # If there are no new files or folders, exist.
+    # If there are no new files or folders, exit.
     get_home_diff_list
 
     make_data_folder
