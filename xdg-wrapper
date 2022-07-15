@@ -245,7 +245,7 @@ function get_home_diff_list()
                   <(echo -e "$home_before") <(echo -e "$home_after") || true)
 
     if [[ -z "$differences" ]]; then
-        echo -e "$F_SCR${ITL}No new dirs or files detected. Nothing to do."
+        echo -e "\n$F_SCR${ITL}No new dirs or files detected. Nothing to do."
         echo -e "$F_SCR${ITL}Closing...$NS"
         exit
     fi
@@ -289,8 +289,8 @@ function get_home_folders_and_files_list()
 function make_data_folder()
 {
     if [[ ! -d "$XDG_WRAPPER_FOLDER" ]]; then
-        echo -en "${F_SCR}Creating '$ORANGE"\
-                 "$XDG_WRAPPER_FOLDER$NS$ITL' folder... "
+        echo -en "${F_SCR}Creating"\
+                 "'$ORANGE$XDG_WRAPPER_FOLDER$NS$ITL' folder... "
         mkdir "$XDG_WRAPPER_FOLDER"
         echo -e "$F_OK"
     fi
