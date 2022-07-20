@@ -32,7 +32,7 @@ set -euo pipefail
 #-----------------------------------------------------------------------
 #  Global settings
 #-----------------------------------------------------------------------
-SCRIPT_VERSION="0.10"
+SCRIPT_VERSION="0.11"
 SHORT_DESCRIPTION="A BASH script to force XDG paths for programs polluting HOME."
 SCRIPT_NAME="XDG-Wrapper"
 
@@ -69,7 +69,7 @@ missing_deps=0
 for dependency in "${DEPENDENCIES[@]}"; do
     if ! command -v "$dependency" > /dev/null 2>&1 ; then
         echo -e "$F_ERR$SCRIPT_RUN: Could't find '$dependency' on the system."\
-                                 "Check if is installed.$NS"
+                "Check if is installed.$NS" >&2
         ((++missing_deps))
     fi
 done
@@ -162,12 +162,12 @@ while getopts ":hvc:f:" opt
                 ;;
             :)
                 echo -e "$F_ERR$SCRIPT_NAME: Invalid option: '-$OPTARG'" \
-                        "requires an argument. Check '-help'.$NS"
+                        "requires an argument. Check '-help'.$NS" >&2
                 exit 1
                 ;;
             *)
                 echo -e "$F_ERR$SCRIPT_NAME: Invalid option: '-$OPTARG'." \
-                        "Check '-help'.$NS"
+                        "Check '-help'.$NS" >&2
                 exit 1
                 ;;
     esac
@@ -180,7 +180,7 @@ shift $((OPTIND-1))
 # Check arguments
 if [[ $# -eq 0 ]]; then
     echo -e "${F_ERR}$SCRIPT_RUN: Error: Missing arguments." \
-            "Check '${SCRIPT_RUN} -help'.$NS"
+            "Check '${SCRIPT_RUN} -help'.$NS" >&2
     exit 1
 fi
 
@@ -207,7 +207,7 @@ fi
 # Check if passed app exist on the system
 if ! command -v "$app_name_raw" > /dev/null 2>&1; then
     echo -e "$F_ERR$SCRIPT_RUN: ERROR: Could't find '$app_name_raw'" \
-            " on the system.$NS"
+            " on the system.$NS" >&2
     exit 1
 fi
 
@@ -220,13 +220,11 @@ fi
 function get_dir_and_files_from_db()
 {
     echo -en "${F_SCR}${ITL}Retrieving data of '${F_APP}' in the db:$NS "
-
     if [[ ! -e $apps_db_file ]]; then
         echo -e "\n${F_SCR}${F_WAR}No db file found.$NS"
         return
-    else
-        echo -e "$F_OK"
     fi
+    echo -e "$F_OK"
 
     # Get apps_db_file content into an array
     mapfile -t apps_db < <(cat "$apps_db_file")
@@ -352,8 +350,8 @@ function mv_dirs_and_files_to_home()
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         file=${app_dirs_and_files[i]}
         if [[ -e "${HOME}/.${file}" ]]; then
-            echo -e "\n$F_ERR${SCRIPT_RUN}:$NS"\
-                    "${F_ERR}Error: '$file' already exist in home folder.$NS"
+            echo -e "\n$F_ERR${SCRIPT_RUN}:$NS ${F_ERR}Error: '$file'"\
+                    "already exist in home folder.$NS" >&2
             exit 1
         fi
     done
@@ -382,7 +380,6 @@ function run_app()
     echo -e "${F_SCR}${ITL}Running '${app_command}':$NS"
     echo -e "$F_SEP"
 
-    #eval " $app_name_raw $app_args > /dev/null 2>&1"
     eval " $app_name_raw $app_args"
 
     echo -e "\n$F_SEP"
