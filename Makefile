@@ -1,10 +1,10 @@
 SHELL = /bin/bash
 
-TARGET_SCRIPT_NAME = xdg-wrapper
-TARGET_FOLDER_INSTALLATION = /usr/local/bin
-AUTO_COMPLETE_PATH = $(XDG_DATA_HOME)/bash-completion/completions
-
 SOURCE_SCRIPT_NAME = xdg-wrapper
+
+TARGET_FOLDER_INSTALLATION = /usr/local/bin
+TARGET_SCRIPT_NAME = xdg-wrapper
+AUTO_COMPLETE_PATH = $(XDG_DATA_HOME)/bash-completion/completions
 
 # Style codes
 GREEN = \033[0;32m
@@ -21,19 +21,19 @@ install: install-script install-tab-completion
 install-script:
 	@echo "- Installing '$(SOURCE_SCRIPT_NAME)' into '$(TARGET_FOLDER_INSTALLATION)/'..."
 	@chmod +x $(SOURCE_SCRIPT_NAME)
-	@cp xdg-wrapper $(TARGET_FOLDER_INSTALLATION)/$(TARGET_SCRIPT_NAME)
+	@cp $(SOURCE_SCRIPT_NAME) $(TARGET_FOLDER_INSTALLATION)/$(TARGET_SCRIPT_NAME)
 	@echo -e "$(DONE)$(NS)"
 
 install-tab-completion:
 	@echo -e "- Adding bash-completion online script into:"
 	@echo -e "  \"$(AUTO_COMPLETE_PATH)\""
 	@mkdir -p "$(AUTO_COMPLETE_PATH)"
-	@echo -e "#!/usr/bin/env bash\ncomplete -c xdg-wrapper" > $(AUTO_COMPLETE_PATH)/$(SOURCE_SCRIPT_NAME)
+	@echo -e "#!/usr/bin/env bash\ncomplete -c $(TARGET_SCRIPT_NAME)" > $(AUTO_COMPLETE_PATH)/$(TARGET_SCRIPT_NAME)
 	@echo -e "$(DONE)$(NS)"
 
 version:
 	@echo "Updating subversion..."
-	@sed -ri 's/(SCRIPT_VERSION=)\"([0-9])\.(.*)\"/echo "\1\\"\2.$$((\3+1))\\""/ge' xdg-wrapper
-	@sed -nr 's/SCRIPT_VERSION="([0-9]\..*)"/Updated to version: \1/p' xdg-wrapper
+	@sed -ri 's/(SCRIPT_VERSION=)\"([0-9])\.(.*)\"/echo "\1\\"\2.$$((\3+1))\\""/ge' $(SOURCE_SCRIPT_NAME)
+	@sed -nr 's/SCRIPT_VERSION="([0-9]\..*)"/Updated to version: \1/p' $(SOURCE_SCRIPT_NAME)
 	@echo -e "$(DONE)$(NS)"
 
