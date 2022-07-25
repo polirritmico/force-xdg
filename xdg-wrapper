@@ -255,7 +255,6 @@ function get_home_diff_list()
     echo -en "${F_SCR}${ITL}Getting hidden dirs/files created in HOME...$NS "
 
     local differences=""
-
     # Get only diff entries between home_before and home_after
     differences=$(diff --changed-group-format='%>' --unchanged-group-format=''\
                   <(echo -e "$home_before") <(echo -e "$home_after") || true)
