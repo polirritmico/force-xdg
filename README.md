@@ -116,6 +116,7 @@ will do the trick:
 ```
 env UBUNTU_MENUPROXY=0 force-xdg audacity %F
 ```
+![Config app launcher through kmenuedit screenshot](docs/screenshot_02.png)
 
 Done!
 
