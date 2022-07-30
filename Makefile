@@ -14,7 +14,9 @@ DONE = $(GREEN)Done
 # =====================================================
 
 default:
-	@echo -e "Use 'make install' to copy $(TARGET_SCRIPT_NAME) into $(TARGET_FOLDER_INSTALLATION) and add autocomplete to $(AUTO_COMPLETE_PATH)"
+	@echo -e "Use $(GREEN)'make install'$(NS) to copy $(TARGET_SCRIPT_NAME)" \
+			 "into $(TARGET_FOLDER_INSTALLATION)/ and to add autocomplete" \
+			 "\nin $(AUTO_COMPLETE_PATH)"
 
 install: install-script install-tab-completion
 
