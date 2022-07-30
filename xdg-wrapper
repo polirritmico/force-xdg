@@ -269,7 +269,7 @@ function get_home_diff_list()
     differences=$(grep "$HOME/\." <<< "$differences")
 
     # Remove $HOME/. from the path of each entry
-    differences=$(sed "s|$HOME/\.||g" <<< "$differences")
+    differences=${differences//$HOME\/\./}
 
     # Convert into an array
     mapfile -t app_dirs_and_files <<< "$differences"
