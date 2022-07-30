@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #=== SH_SCRIPT  ================================================================
-#         NAME:   XDG-Wrapper
+#         NAME:   Force-XDG
 #  DESCRIPTION:   A BASH script to force XDG paths for programs polluting HOME.
 #         DATE:   2022/07/07
 #===============================================================================
@@ -32,9 +32,9 @@ set -euo pipefail
 #-----------------------------------------------------------------------
 #  Global settings
 #-----------------------------------------------------------------------
-SCRIPT_VERSION="0.11"
+SCRIPT_VERSION="0.12"
 SHORT_DESCRIPTION="A BASH script to force XDG paths for programs polluting HOME."
-SCRIPT_NAME="XDG-Wrapper"
+SCRIPT_NAME="Force-XDG"
 
 XDG_WRAPPER_FOLDER="$XDG_DATA_HOME"/"$SCRIPT_NAME"
 DEPENDENCIES=( "mapfile" "read" "getopts" "sed" "grep" "diff" "sort"\
@@ -101,7 +101,7 @@ function help()
     echo -e "${BLD}Usage: $F_CMD$SCRIPT_RUN ${F_ARG}[OPTION]... [PROGRAM]$NS
        $F_CMD$SCRIPT_RUN ${F_ARG}[OPTION]... [PROGRAM] [PROGRAM ARGS]$NS
 
-Move hidden polluting files from [HOME] to [XDG_DATA_HOME]/XDG-Wrapper/ folder.
+Move hidden polluting files from [HOME] to [XDG_DATA_HOME]/${SCRIPT_NAME}/ folder.
 When [PROGRAM] is run for the first time is STRONGLY RECOMMENDED to close it
 immediately to get a clean file list. The script compare the state of [HOME]
 before and after the first execution to make a folders and files list based on
@@ -112,7 +112,7 @@ $F_OPT  -c|custom        ${NS}Change the program identifier to a custom one. Use
                    when launching programs from scripts or when the same
                    program could be initialized from differents symlinks
                    or paths.
-$F_OPT  -f|folder        ${NS}Manually set XDG-Wrapper data folder
+$F_OPT  -f|folder        ${NS}Manually set ${SCRIPT_NAME} data folder
                    ($ITL$XDG_WRAPPER_FOLDER$NS by default)
 $F_OPT  -h|help          ${NS}Display this help message.
 $F_OPT  -v|version       ${NS}Display the version of $SCRIPT_NAME and exit."

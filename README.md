@@ -1,31 +1,31 @@
-XDG-Wrapper :house::wrench:
+Force-XDG :house::wrench:
 ===========================
 
 A BASH script to force non-compliant _XDG Base Directory_ programs to store
 their hidden dot folders and files in the XDG Data path instead of polluting
 `$HOME`.
 
-![XDG-Wrapper running](docs/screenshot_01.png)
+![Force-XDG running](docs/screenshot_01.png)
 
 ## Description
 
 When the program is launched, the script will move the content of the
-`$XDG_DATA_HOME/XDG-Wrapper/APP/` folder into `$HOME` and after closing it will
-move the folders and files back to `$XDG_DATA_HOME/XDG-Wrapper/APP/`.
+`$XDG_DATA_HOME/Force-XDG/APP/` folder into `$HOME` and after closing it will
+move the folders and files back to `$XDG_DATA_HOME/Force-XDG/APP/`.
 
 > _Moving files on the same filesystem in GNU/Linux is really fast since only
 > the_ directory entries _are modified._
 
-For example if ***Steam*** is launched through XDG-Wrapper:
+For example if ***Steam*** is launched through Force-XDG:
 
 ```command
-$ xdg-wrapper steam
+$ force-xdg steam
 ```
 
-It will move from `~/.local/share/XDG-Wrapper/steam/` the folders and files
+It will move from `~/.local/share/Force-XDG/steam/` the folders and files
 `pki/`, `steam/`, `steampath` and `steampid` to `~/.pki`, `~/.steam`,
 `~/.steampath` and `~/.steampid` accordingly. After ***Steam*** is closed, it
-will move those elements back to `~/.local/share/XDG-Wrapper/steam/`.
+will move those elements back to `~/.local/share/Force-XDG/steam/`.
 
 ![Example](docs/example.png)
 
@@ -36,7 +36,7 @@ alternative `make` can be used to do it automatically (which also install BASH
 auto-completion):
 
 ```
-git clone https://github.com/polirritmico/xdg-wrapper.git
+git clone https://github.com/polirritmico/force-xdg.git
 make install
 ```
 
@@ -44,13 +44,13 @@ make install
 
 ### First run:
 
-When the program is run through XDG-Wrapper for the first time, the script will
+When the program is run through Force-XDG for the first time, the script will
 read the state of the dot folders and files of home and compare it with the
 state after closing the program, saving the list of new folders and files into
-`$XDG_DATA_HOME/XDG-Wrapper/db`. For example:
+`$XDG_DATA_HOME/Force-XDG/db`. For example:
 
 ```command
-$ cat ~/.local/share/XDG-Wrapper/db | grep steam
+$ cat ~/.local/share/Force-XDG/db | grep steam
 steam;steampid;steampath;steam;pki;
 ```
  
@@ -61,19 +61,19 @@ steam;steampid;steampath;steam;pki;
 ### From the terminal:
 
 ```command
-$ xdg-wrapper PROGRAM
+$ force-xdg PROGRAM
 ```
 
 ```
-$ xdg-wrapper -help
+$ force-xdg -help
 
-XDG-Wrapper v0.1
+Force-XDG v0.1
 A simple BASH script to simulate XDG paths and clean HOME.
 
-Usage: xdg-wrapper [OPTION]... [PROGRAM]
-       xdg-wrapper [OPTION]... [PROGRAM] [PROGRAM ARGS]
+Usage: force-xdg [OPTION]... [PROGRAM]
+       force-xdg [OPTION]... [PROGRAM] [PROGRAM ARGS]
 
-Move hidden polluting files from [HOME] to [XDG_DATA_HOME]/XDG-Wrapper/ folder.
+Move hidden polluting files from [HOME] to [XDG_DATA_HOME]/Force-XDG/ folder.
 When [PROGRAM] is run for the first time is STRONGLY RECOMMENDED to close it
 immediately to get a clean file list. The script compare the state of [HOME]
 before and after the first execution to make a folders and files list based on
@@ -84,18 +84,18 @@ Options:
                    launching programs from scripts or when the same program
                    could be initialized from symlinks with different filenames.
   -f|folder        Manually setup the destination folder
-                   ($XDG_DATA_HOME/XDG-Wrapper by default)
+                   ($XDG_DATA_HOME/Force-XDG by default)
   -h|help          Display this help message.
-  -v|version       Display the version of XDG-Wrapper and exit.
+  -v|version       Display the version of Force-XDG and exit.
 ```
 
 ### With KDE:
 
-XDG-Wrapper works great with KDE, simply edit the program launcher:
+Force-XDG works great with KDE, simply edit the program launcher:
 
 1. Open the KDE main menu.
 2. Find the program → Right click → "Edit application" → Application tab.
-3. In the **Command** section, add _xdg-wrapper_ before the binary call.
+3. In the **Command** section, add _force-xdg_ before the binary call.
 4. Save.
 5. Launch the program from the KDE menu or Krunner.
 6. Close the program.
@@ -110,11 +110,11 @@ The command section should read something like this:
 env UBUNTU_MENUPROXY=0 audacity %F
 ```
 It has a "env variable" (most launchers don't have that), then the program, and
-finally a "place holder". Simply adding ***xdg-wrapper*** before the command
+finally a "place holder". Simply adding ***force-xdg*** before the command
 will do the trick:
 
 ```
-env UBUNTU_MENUPROXY=0 xdg-wrapper audacity %F
+env UBUNTU_MENUPROXY=0 force-xdg audacity %F
 ```
 
 Done!

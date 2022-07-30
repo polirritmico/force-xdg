@@ -1,9 +1,9 @@
 SHELL = /bin/bash
 
-SOURCE_SCRIPT_NAME = xdg-wrapper
+SOURCE_SCRIPT_NAME = force-xdg
 
 TARGET_FOLDER_INSTALLATION = /usr/local/bin
-TARGET_SCRIPT_NAME = xdg-wrapper
+TARGET_SCRIPT_NAME = force-xdg
 AUTO_COMPLETE_PATH = $(XDG_DATA_HOME)/bash-completion/completions
 
 # Style codes
