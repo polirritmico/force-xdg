@@ -67,7 +67,7 @@ $ force-xdg PROGRAM
 ```
 $ force-xdg -help
 
-Force-XDG v0.1
+Force-XDG v0.12
 A simple BASH script to simulate XDG paths and clean HOME.
 
 Usage: force-xdg [OPTION]... [PROGRAM]
