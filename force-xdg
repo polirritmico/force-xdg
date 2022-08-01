@@ -36,7 +36,7 @@ SCRIPT_VERSION="1.0"
 SHORT_DESCRIPTION="A BASH script to force XDG paths for programs polluting HOME."
 SCRIPT_NAME="Force-XDG"
 
-XDG_WRAPPER_FOLDER="$XDG_DATA_HOME"/"$SCRIPT_NAME"
+FORCE_XDG_FOLDER="$XDG_DATA_HOME"/"$SCRIPT_NAME"
 DEPENDENCIES=( "mapfile" "read" "getopts" "sed" "grep" "diff" "sort"\
                "basename" "readlink" "tput" )
 
@@ -112,7 +112,7 @@ $F_OPT  -c|custom        ${NS}Change the program identifier to a custom one. Use
                    program could be initialized from differents symlinks
                    or paths.
 $F_OPT  -f|folder        ${NS}Manually set ${SCRIPT_NAME} data folder
-                   ($ITL$XDG_WRAPPER_FOLDER$NS by default)
+                   ($ITL$FORCE_XDG_FOLDER$NS by default)
 $F_OPT  -h|help          ${NS}Display this help message.
 $F_OPT  -v|version       ${NS}Display the version of $SCRIPT_NAME and exit."
 
@@ -128,7 +128,7 @@ custom_folder=""
 custom_id=""
 
 apps_db=()
-apps_db_file="$XDG_WRAPPER_FOLDER"/db
+apps_db_file="$FORCE_XDG_FOLDER"/db
 
 app_name_raw=""
 app_name=""
@@ -199,8 +199,8 @@ app_args=("${*:2}")
 
 # Use custom folder if setted
 if [[ -n ${custom_folder} ]]; then
-    XDG_WRAPPER_FOLDER="${custom_folder}"
-    apps_db_file="$XDG_WRAPPER_FOLDER"/db
+    FORCE_XDG_FOLDER="${custom_folder}"
+    apps_db_file="$FORCE_XDG_FOLDER"/db
 fi
 
 # Check if passed app exist on the system
@@ -298,14 +298,14 @@ function get_home_folders_and_files_list()
 
 #===  FUNCTION  ================================================================
 #         NAME:   Make data folder
-#  DESCRIPTION:   If XDG_WRAPPER_FOLDER doesn't exist create it.
+#  DESCRIPTION:   If FORCE_XDG_FOLDER doesn't exist create it.
 #===============================================================================
 function make_data_folder()
 {
-    if [[ ! -d "$XDG_WRAPPER_FOLDER" ]]; then
+    if [[ ! -d "$FORCE_XDG_FOLDER" ]]; then
         echo -en "${F_SCR}Creating"\
-                 "'$ORANGE$XDG_WRAPPER_FOLDER$NS$ITL' folder... "
-        mkdir "$XDG_WRAPPER_FOLDER"
+                 "'$ORANGE$FORCE_XDG_FOLDER$NS$ITL' folder... "
+        mkdir -p "$FORCE_XDG_FOLDER"
         echo -e "$F_OK"
     fi
 
@@ -321,15 +321,15 @@ function mv_dirs_and_files_from_home()
 {
     echo -en "${F_SCR}${ITL}Cleaning home...$NS "
     # Create dir if doesn't exists
-    if [[ ! -d "${XDG_WRAPPER_FOLDER}/${app_name}" ]]; then
+    if [[ ! -d "${FORCE_XDG_FOLDER}/${app_name}" ]]; then
         echo -en "\n${F_SCR}${ITL}and creating target folder: '$F_APP'$NS "
-        mkdir "${XDG_WRAPPER_FOLDER}/${app_name}"
+        mkdir "${FORCE_XDG_FOLDER}/${app_name}"
     fi
 
     # Move the dirs and files
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         file=${app_dirs_and_files[i]}
-        mv "$HOME/.$file" "${XDG_WRAPPER_FOLDER}/$app_name/$file"
+        mv "$HOME/.$file" "${FORCE_XDG_FOLDER}/$app_name/$file"
     done
     echo -e "$F_OK"
 
@@ -356,7 +356,7 @@ function mv_dirs_and_files_to_home()
     # Now we move the files and folders
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
         file=${app_dirs_and_files[i]}
-        mv "${XDG_WRAPPER_FOLDER}/${app_name}/${file}" "${HOME}/.${file}"
+        mv "${FORCE_XDG_FOLDER}/${app_name}/${file}" "${HOME}/.${file}"
     done
     echo -e " $F_OK"
 
