@@ -45,7 +45,7 @@ make install
 Just call the script with the program and its args:
 
 ```command
-$ force-xdg non-xdg-app --example -n options
+$ force-xdg program --example -n options
 ```
 
 ### First run:
