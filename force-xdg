@@ -373,12 +373,13 @@ function mv_dirs_and_files_to_home()
 function separator()
 {
     local sep_char="="
-    local max_line_length=$(tput cols)
+    local max_line_length=""
+    max_line_length=$(tput cols)
     local output=""
 
     # If no arg, then draw a separation line without text
     if [[ $# -eq 0 ]]; then
-        for (( i=0; i<${max_line_length}; i++ )); do
+        for (( i=0; i<max_line_length; i++ )); do
             output="${output}${sep_char}"
         done
         echo -e "${GREEN}${output}${NS}"
@@ -391,18 +392,18 @@ function separator()
     local out_beginning="${sep_char}${sep_char}${sep_char} "
     local out_middle="${text} Output: "
     local out_current_length=$((${#out_beginning} + ${#out_middle}))
-    local remaining_length=$(($max_line_length - $out_current_length))
+    local remaining_length=$((max_line_length - out_current_length))
     if [[ $remaining_length -lt 3 ]]; then
         # Not enought space to display the text, so we change the output
         out_middle="Program Output: "
         # Also update the remaining length is needed
         out_current_length=$((${#out_beginning} + ${#out_middle}))
-        remaining_length=$(($max_line_length - $out_current_length))
+        remaining_length=$((max_line_length - out_current_length))
     fi
 
     # Get the separator horizontal line with the corresponding remaining length
     local out_end=""
-    for (( i=0; i<${remaining_length}; i++ )); do
+    for (( i=0; i<remaining_length; i++ )); do
         out_end="${out_end}${sep_char}"
     done
 
@@ -428,7 +429,7 @@ function run_app()
         app_command="${ORANGE}${app_name_raw} ${app_args}${NS}${ITL}"
     fi
     echo -e "${F_SCR}${ITL}Running '${app_command}':$NS"
-    separator ${app_name}
+    separator "${app_name}"
 
     eval " $app_name_raw $app_args"
 
