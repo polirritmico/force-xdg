@@ -42,6 +42,12 @@ make install
 
 ## Usage
 
+Just call the script with the program and its args:
+
+```command
+$ force-xdg non-xdg-app --example -n options
+```
+
 ### First run:
 
 When the program is run through Force-XDG for the first time, the script will
