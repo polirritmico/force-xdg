@@ -38,7 +38,7 @@ SCRIPT_NAME="Force-XDG"
 
 XDG_WRAPPER_FOLDER="$XDG_DATA_HOME"/"$SCRIPT_NAME"
 DEPENDENCIES=( "mapfile" "read" "getopts" "sed" "grep" "diff" "sort"\
-               "basename" "readlink" )
+               "basename" "readlink" "tput" )
 
 # Get the real script filename even through a symbolic link
 SCRIPT_RUN="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
@@ -196,7 +196,7 @@ fi
 F_APP="${F_APP}${app_name}$NS$ITL"
 
 # Get all args after program (>$1)
-app_args=( "${*:2}" )
+app_args=("${*:2}")
 
 # Use custom folder if setted
 if [[ -n ${custom_folder} ]]; then
@@ -207,7 +207,7 @@ fi
 # Check if passed app exist on the system
 if ! command -v "$app_name_raw" > /dev/null 2>&1; then
     echo -e "$F_ERR$SCRIPT_RUN: ERROR: Could't find '$app_name_raw'" \
-            " on the system.$NS" >&2
+            "on the system.$NS" >&1
     exit 1
 fi
 
@@ -323,7 +323,7 @@ function mv_dirs_and_files_from_home()
     echo -en "${F_SCR}${ITL}Cleaning home...$NS "
     # Create dir if doesn't exists
     if [[ ! -d "${XDG_WRAPPER_FOLDER}/${app_name}" ]]; then
-        echo -en "\n${F_SCR}${ITL}And also creating the '$F_APP' folder...$NS "
+        echo -en "\n${F_SCR}${ITL}and creating target folder: '$F_APP'$NS "
         mkdir "${XDG_WRAPPER_FOLDER}/${app_name}"
     fi
 
