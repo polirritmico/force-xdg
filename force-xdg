@@ -257,7 +257,6 @@ function get_home_diff_list()
     # Get only diff entries between home_before and home_after
     differences=$(diff --changed-group-format='%>' --unchanged-group-format=''\
                   <(echo -e "$home_before") <(echo -e "$home_after") || true)
-
     if [[ -z "$differences" ]]; then
         echo -e "\n$F_SCR${ITL}No new dirs or files detected. Nothing to do."
         echo -e "$F_SCR${ITL}Closing...$NS"
@@ -266,10 +265,8 @@ function get_home_diff_list()
 
     # Remove non dot folders/files
     differences=$(grep "$HOME/\." <<< "$differences")
-
     # Remove $HOME/. from the path of each entry
     differences=${differences//$HOME\/\./}
-
     # Convert into an array
     mapfile -t app_dirs_and_files <<< "$differences"
 
@@ -328,7 +325,7 @@ function mv_dirs_and_files_from_home()
 
     # Move the dirs and files
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
-        file=${app_dirs_and_files[i]}
+        local file=${app_dirs_and_files[i]}
         mv "$HOME/.$file" "${FORCE_XDG_FOLDER}/$app_name/$file"
     done
     echo -e "$F_OK"
@@ -346,7 +343,7 @@ function mv_dirs_and_files_to_home()
     echo -en "${F_SCR}${ITL}Moving '${F_APP}' folders to home..."
     # First check if any folder/file already exist to prevent data loss
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
-        file=${app_dirs_and_files[i]}
+        local file=${app_dirs_and_files[i]}
         if [[ -e "${HOME}/.${file}" ]]; then
             echo -e "\n$F_ERR${SCRIPT_RUN}:$NS ${F_ERR}Error: '$file'"\
                     "already exist in home folder.$NS" >&2
@@ -355,12 +352,62 @@ function mv_dirs_and_files_to_home()
     done
     # Now we move the files and folders
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
-        file=${app_dirs_and_files[i]}
+        local file=${app_dirs_and_files[i]}
         mv "${FORCE_XDG_FOLDER}/${app_name}/${file}" "${HOME}/.${file}"
     done
     echo -e " $F_OK"
 
 }  # ------------  end of function mv_dirs_and_files_to_home  ------------
+
+
+
+#===  FUNCTION  ================================================================
+#         NAME:   Run app
+#  DESCRIPTION:   Get appname command with args and run it
+#===============================================================================
+function run_app()
+{
+    if [[ -z ${app_args[0]} ]]; then
+        app_command="${ORANGE}${app_name_raw}${NS}${ITL}"
+    else
+        app_command="${ORANGE}${app_name_raw} ${app_args}${NS}${ITL}"
+    fi
+    echo -e "${F_SCR}${ITL}Running '${app_command}':$NS"
+    separator "${app_name}"
+
+    eval " $app_name_raw $app_args"
+
+    separator
+    echo -e "${F_SCR}${ITL}Closed '${F_APP}'$NS"
+
+}  # ------------  end of function run_app  ------------
+
+
+
+#===  FUNCTION  ================================================================
+#         NAME:   Save app info into db
+#  DESCRIPTION:   Save the appname, dirs and folders (data) into the database.
+#===============================================================================
+function save_app_info_into_db()
+{
+    echo -e "${F_SCR}${ITL}Storing '${F_APP}' info in the database:$NS"
+    local data="$app_name"
+
+    for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
+        data="${data};${app_dirs_and_files[i]}"
+    done
+    data="${data};"
+
+    if [[ ! -f $apps_db_file ]]; then
+        echo -en "${F_SCR}${ITL}Creating the database file... "
+    else
+        echo -en "${F_SCR}${ITL}Updating the database... "
+    fi
+    echo "$data" >> "$apps_db_file"
+    sort -o "$apps_db_file" "$apps_db_file"
+    echo -e "$F_OK"
+
+}  # ------------  end of function save_app_info_into_db  ------------
 
 
 
@@ -414,56 +461,6 @@ function separator()
     echo -e "${output}"
 
 }  # ------------  end of function separator  ------------
-
-
-
-#===  FUNCTION  ================================================================
-#         NAME:   Run app
-#  DESCRIPTION:   Get appname command with args and run it
-#===============================================================================
-function run_app()
-{
-    if [[ -z ${app_args[0]} ]]; then
-        app_command="${ORANGE}${app_name_raw}${NS}${ITL}"
-    else
-        app_command="${ORANGE}${app_name_raw} ${app_args}${NS}${ITL}"
-    fi
-    echo -e "${F_SCR}${ITL}Running '${app_command}':$NS"
-    separator "${app_name}"
-
-    eval " $app_name_raw $app_args"
-
-    separator
-    echo -e "${F_SCR}${ITL}Closed '${F_APP}'$NS"
-
-}  # ------------  end of function run_app  ------------
-
-
-
-#===  FUNCTION  ================================================================
-#         NAME:   Save app info into db
-#  DESCRIPTION:   Save the appname, dirs and folders (data) into the database.
-#===============================================================================
-function save_app_info_into_db()
-{
-    echo -e "${F_SCR}${ITL}Storing '${F_APP}' info in the database:$NS"
-    data="$app_name"
-
-    for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
-        data="${data};${app_dirs_and_files[i]}"
-    done
-    data="${data};"
-
-    if [[ ! -f $apps_db_file ]]; then
-        echo -en "${F_SCR}${ITL}Creating the database file... "
-    else
-        echo -en "${F_SCR}${ITL}Updating the database... "
-    fi
-    echo "$data" >> "$apps_db_file"
-    sort -o "$apps_db_file" "$apps_db_file"
-    echo -e "$F_OK"
-
-}  # ------------  end of function save_app_info_into_db  ------------
 
 
 
