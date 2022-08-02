@@ -4,6 +4,7 @@
 #         NAME:   Force-XDG
 #  DESCRIPTION:   A BASH script to force XDG paths for programs polluting HOME.
 #         DATE:   2022/07/07
+#       AUTHOR:   @Polirritmico https://github.com/polirritmico
 #===============================================================================
 
 
