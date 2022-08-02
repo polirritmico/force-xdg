@@ -374,6 +374,7 @@ function run_app()
     fi
     echo -e "${F_SCR}${ITL}Running '${app_command}':$NS"
     separator "${app_name}"
+    echo
 
     eval " $app_name_raw $app_args"
 
