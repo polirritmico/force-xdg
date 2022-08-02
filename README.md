@@ -32,8 +32,9 @@ will move those elements back to `~/.local/share/Force-XDG/steam/`.
 ## Installation
 
 Just copy the script to `/usr/local/bin/` or any location in your `PATH`. As an
-alternative `make` can be used to do it automatically (which also install the
-BASH auto-completion entry):
+alternative `make` can be used to do it automatically (Permissions may need to
+be adjusted if used as normal user. This also install a BASH auto-completion
+entry in `XDG_DATA_HOME`):
 
 ```
 git clone https://github.com/polirritmico/force-xdg.git
