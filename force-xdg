@@ -206,8 +206,13 @@ fi
 # Get all args after program (>$1)
 app_args=("${*:2}")
 
+# Check custom dir and fake_home_mode at the same time
+if [[ -n ${custom_dir} && ${fake_home_mode} == true ]]; then
+    echo -e "$F_ERR$SCRIPT_RUN:" \
+            "ERROR: Can't use custom dir with fake mode enabled.$NS"
+    exit 1
 # Use custom dir if setted
-if [[ -n ${custom_dir} ]]; then
+elif [[ -n ${custom_dir} ]]; then
     FORCE_XDG_FOLDER="${custom_dir}"
     apps_db_file="$FORCE_XDG_FOLDER"/db
 fi
