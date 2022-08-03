@@ -29,6 +29,19 @@ will move those elements back to `~/.local/share/Force-XDG/steam/`.
 
 ![Example](docs/example.png)
 
+### Fake Home Mode
+
+```command
+$ force-xdg -f steam
+```
+
+In this mode instead of getting the file list and move dirs and files, the
+script will simply change the `$HOME` environment variable value to
+`$XDG_DATA_HOME/Force-XDG/fake_home` so all dirs and folders are generated and
+stored on that folder (this could include a `./local/data` or a `.config`
+folders).
+
+
 ## Installation
 
 Just copy the script to `/usr/local/bin/` or any location in your `PATH`. As an
@@ -40,6 +53,7 @@ entry in `XDG_DATA_HOME`):
 git clone https://github.com/polirritmico/force-xdg.git
 make install
 ```
+
 
 ## Usage
 
@@ -69,13 +83,25 @@ steam;steampid;steampath;steam;pki;
 
 ### Fake Home Mode
 
+Sets the `$HOME` env value to `$XDG_DATA_HOME/Force-XDG/fake_home`. The script
+will also store the _fake home_ option on the database so no further `-f` arg
+calls are needed.
+
+First run:
+
 ```command
-$ force-xdg -f program
+$ force-xdg -f PROGRAM
+```
+Then `-f` is no longer needed:
+
+```command
+$ force-xdg PROGRAM
 ```
 
-In this mode the script will change the `$HOME` env value to
-`$XDG_DATA_HOME/Force-XDG/fake_home` so all dot folders and files are located
-inside there. The script will save the fake home option in the database so the `-f` argument is needed just for the first run.
+```command
+$ cat $XDG_DATA_HOME/Force-XDG/db | grep PROGRAM
+PROGRAM;FAKEHOME;
+```
 
 ### From the terminal:
 
@@ -86,7 +112,7 @@ $ force-xdg PROGRAM
 ```
 $ force-xdg -help
 
-Force-XDG v0.12
+Force-XDG v1.1
 A simple BASH script to simulate XDG paths and clean HOME.
 
 Usage: force-xdg [OPTION]... [PROGRAM]
@@ -99,13 +125,14 @@ before and after the first execution to make a folders and files list based on
 the changes.
 
 Options:
-  -c|custom        Change the program identifier to a custom one. Usefull when
+  -c (custom)      Change the program identifier to a custom one. Usefull when
                    launching programs from scripts or when the same program
                    could be initialized from symlinks with different filenames.
-  -f|folder        Manually setup the destination folder
+  -d (dir)         Manually setup the destination folder
                    ($XDG_DATA_HOME/Force-XDG by default)
-  -h|help          Display this help message.
-  -v|version       Display the version of Force-XDG and exit.
+  -f (fake)        Enable Fake $Home mode.
+  -h (help)        Display this help message.
+  -v (version)     Display the version of Force-XDG and exit.
 ```
 
 ### With KDE:
