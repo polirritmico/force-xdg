@@ -43,13 +43,15 @@ make install
 
 ## Usage
 
+### Normal Mode
+
 Just call the script with the program and its args:
 
 ```command
 $ force-xdg program --example -n options
 ```
 
-### First run:
+#### First run:
 
 When the program is run through Force-XDG for the first time, the script will
 read the state of the dot folders and files of home and compare it with the
@@ -64,6 +66,16 @@ steam;steampid;steampath;steam;pki;
 > Is ***strongly recommended*** to close the program as soon as posible on its
 > first run to get a clean file list as any dot-folder or file generated while
 > the program is running for first time will be added to the program's list.
+
+### Fake Home Mode
+
+```command
+$ force-xdg -f program
+```
+
+In this mode the script will change the `$HOME` env value to
+`$XDG_DATA_HOME/Force-XDG/fake_home` so all dot folders and files are located
+inside there. The script will save the fake home option in the database so the `-f` argument is needed just for the first run.
 
 ### From the terminal:
 
