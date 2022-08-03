@@ -38,8 +38,7 @@ $ force-xdg -f steam
 In this mode instead of getting the file list and move dirs and files, the
 script will simply change the `$HOME` environment variable value to
 `$XDG_DATA_HOME/Force-XDG/fake_home` so all dirs and folders are generated and
-stored on that folder (this could include a `./local/data` or a `.config`
-folders).
+stored on that folder (this could include `./local/data` or `.config` folders).
 
 
 ## Installation
