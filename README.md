@@ -29,7 +29,7 @@ will move those elements back to `~/.local/share/Force-XDG/steam/`.
 
 ![Example](docs/example.png)
 
-### Fake Home Mode
+### Alternative: Fake Home Mode
 
 ```command
 $ force-xdg -f steam
