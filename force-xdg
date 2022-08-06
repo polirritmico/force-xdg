@@ -38,9 +38,10 @@ SHORT_DESCRIPTION="A BASH script to force XDG paths for programs polluting HOME.
 SCRIPT_NAME="Force-XDG"
 
 FORCE_XDG_FOLDER="$XDG_DATA_HOME"/"$SCRIPT_NAME"
+FAKE_HOME_FOLDER="$FORCE_XDG_FOLDER/fake_home"
+
 DEPENDENCIES=( "mapfile" "read" "getopts" "sed" "grep" "diff" "sort"\
                "basename" "readlink" "tput" )
-
 # Get the real script filename even through a symbolic link
 SCRIPT_RUN="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
@@ -502,8 +503,8 @@ get_dir_and_files_from_db
 #-------------------------------------------------------------------------------
 if [[ $fake_home_mode == true ]]; then
     echo -e "${F_SCR}${ITL}Running in fake home mode...$NS"
-    FORCE_XDG_FOLDER="${FORCE_XDG_FOLDER}/fake_home"
-    HOME=${FORCE_XDG_FOLDER}
+    FORCE_XDG_FOLDER="${FAKE_HOME_FOLDER}"
+    HOME="${FAKE_HOME_FOLDER}"
 
     echo -e "${F_SCR}${ITL}Fake home setted to ${NS}${ORANGE}'${HOME}'$NS"
     if [[ ! -d $HOME ]]; then
