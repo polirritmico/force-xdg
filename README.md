@@ -58,10 +58,10 @@ make install
 
 ### Normal Mode
 
-Just call the script with the program and its args:
+Just call the script with the program and its args or paths:
 
 ```command
-$ force-xdg program --example -n options
+$ force-xdg program --example -n options "/path/to/file"
 ```
 
 #### First run:
