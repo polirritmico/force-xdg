@@ -7,6 +7,25 @@ their hidden dot folders and files in the XDG Data path instead of polluting
 
 ![Force-XDG running](docs/screenshot_01.png)
 
+
+## TL;DR
+
+Just call the script with the program and its args or paths:
+
+```command
+$ force-xdg program --example -n options "/path/to/file"
+```
+
+It will store the dot folders/files on `$XDG_DATA_HOME/Force-XDG/program`.
+
+For help:
+
+```command
+$ force-xdg -h
+```
+
+-------------------------------------------------------------------------------
+
 ## Description
 
 When the program is launched, the script will move the content of the
@@ -21,13 +40,13 @@ For example if ***Steam*** is launched through Force-XDG:
 ```command
 $ force-xdg steam
 ```
+![Example](docs/example.png)
 
 It will move from `~/.local/share/Force-XDG/steam/` the folders and files
 `pki/`, `steam/`, `steampath` and `steampid` to `~/.pki`, `~/.steam`,
 `~/.steampath` and `~/.steampid` accordingly. After ***Steam*** is closed, it
 will move those elements back to `~/.local/share/Force-XDG/steam/`.
 
-![Example](docs/example.png)
 
 ### Alternative: Fake Home Mode
 
@@ -38,7 +57,7 @@ $ force-xdg -f steam
 In this mode instead of getting the file list and move dirs and files, the
 script will simply change the `$HOME` environment variable value to
 `$XDG_DATA_HOME/Force-XDG/fake_home` so all dirs and folders are generated and
-stored on that folder (this could include `./local/data` or `.config` folders).
+stored on that folder.
 
 
 ## Installation
@@ -55,14 +74,6 @@ make install
 
 
 ## Usage
-
-### Normal Mode
-
-Just call the script with the program and its args or paths:
-
-```command
-$ force-xdg program --example -n options "/path/to/file"
-```
 
 #### First run:
 
@@ -102,37 +113,6 @@ $ cat $XDG_DATA_HOME/Force-XDG/db | grep PROGRAM
 PROGRAM;FAKEHOME;
 ```
 
-### From the terminal:
-
-```command
-$ force-xdg PROGRAM
-```
-
-```
-$ force-xdg -help
-
-Force-XDG v1.1
-A simple BASH script to simulate XDG paths and clean HOME.
-
-Usage: force-xdg [OPTION]... [PROGRAM]
-       force-xdg [OPTION]... [PROGRAM] [PROGRAM ARGS]
-
-Move hidden polluting files from [HOME] to [XDG_DATA_HOME]/Force-XDG/ folder.
-When [PROGRAM] is run for the first time is STRONGLY RECOMMENDED to close it
-immediately to get a clean file list. The script compare the state of [HOME]
-before and after the first execution to make a folders and files list based on
-the changes.
-
-Options:
-  -c (custom)      Change the program identifier to a custom one. Usefull when
-                   launching programs from scripts or when the same program
-                   could be initialized from symlinks with different filenames.
-  -d (dir)         Manually setup the destination folder
-                   ($XDG_DATA_HOME/Force-XDG by default)
-  -f (fake)        Enable Fake $Home mode.
-  -h (help)        Display this help message.
-  -v (version)     Display the version of Force-XDG and exit.
-```
 
 ### With KDE:
 
