@@ -75,7 +75,7 @@ make install
 
 ## Usage
 
-#### First run:
+### First run:
 
 When the program is run through Force-XDG for the first time, the script will
 read the state of the dot folders and files of home and compare it with the
