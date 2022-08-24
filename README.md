@@ -1,5 +1,6 @@
 Force-XDG :house::wrench:
 ===========================
+![GitHub last commit](https://img.shields.io/github/last-commit/polirritmico/force-xdg)  [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 A BASH script to force non-compliant _XDG Base Directory_ programs to store
 their hidden dot folders and files in the XDG Data path instead of polluting
