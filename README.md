@@ -17,7 +17,7 @@ Just call the script with the program and its args or paths:
 $ force-xdg program --example -n options "/path/to/file"
 ```
 
-It will store the dot folders/files on `$XDG_DATA_HOME/Force-XDG/program`.
+It will store the dot folders/files inside `$XDG_DATA_HOME/Force-XDG/program`.
 
 For help:
 
