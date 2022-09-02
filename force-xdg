@@ -318,6 +318,9 @@ function get_home_folders_and_files_list()
 #===============================================================================
 function interruption_handler()
 {
+    # For some reason when this function is called through trap, using the
+    # separator function will end the script execution wihout running the next
+    # lines of this function. So we need to duplicate some code from separator.
     local sep_char="="
     local max_line_length=""
     if [[ -z $TERM || $TERM == "dumb" ]]; then
