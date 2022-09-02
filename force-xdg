@@ -333,7 +333,10 @@ function interruption_handler()
 
     echo -e "$F_SCR${F_ERR}Exiting on signal SIGINT:" \
             "'${F_APP}${F_ERR}' terminated.$NS"
-    mv_dirs_and_files_from_home
+
+    if [[ $fake_home_mode == false ]]; then
+        mv_dirs_and_files_from_home
+    fi
     echo -e "$F_SCR${ITL}Closing...$NS"
     exit
 
@@ -546,7 +549,9 @@ if [[ $fake_home_mode == true ]]; then
         echo -e "${F_SCR}${ITL}${ORANGE}Fake home directory not found.$NS"
         make_data_folder
     fi
+    trap "interruption_handler" INT
     run_app
+    trap - INT
 
     if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
         save_app_info_into_db
