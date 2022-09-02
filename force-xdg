@@ -33,7 +33,7 @@ set -euo pipefail
 #-----------------------------------------------------------------------
 #  Global settings
 #-----------------------------------------------------------------------
-SCRIPT_VERSION="1.2"
+SCRIPT_VERSION="1.3"
 SHORT_DESCRIPTION="A BASH script to force XDG paths for programs polluting HOME."
 SCRIPT_NAME="Force-XDG"
 
@@ -313,6 +313,37 @@ function get_home_folders_and_files_list()
 
 
 #===  FUNCTION  ================================================================
+#         NAME:   Interruption handler
+#  DESCRIPTION:   Run when 'Ctrl+C' is detected while running the command.
+#===============================================================================
+function interruption_handler()
+{
+    local sep_char="="
+    local max_line_length=""
+    if [[ -z $TERM || $TERM == "dumb" ]]; then
+        max_line_length=1
+    else
+        max_line_length=$(tput cols)
+    fi
+    local output=""
+    for (( i=0; i<max_line_length; i++ )); do
+        output="${output}${sep_char}"
+    done
+    echo -e "\n${GREEN}${output}${NS}"
+
+    echo -e "$F_SCR${F_ERR}Exiting on signal SIGINT:" \
+            "'${F_APP}${F_ERR}' terminated.$NS"
+    mv_dirs_and_files_from_home
+    echo -e "$F_SCR${ITL}Closing...$NS"
+    exit
+
+}  # ------------  end of function interruption_handler  ------------
+
+
+
+
+
+#===  FUNCTION  ================================================================
 #         NAME:   Make data folder
 #  DESCRIPTION:   If FORCE_XDG_FOLDER doesn't exist create it.
 #===============================================================================
@@ -393,7 +424,6 @@ function run_app()
     fi
     echo -e "${F_SCR}${ITL}Running '${app_command}':$NS"
     separator "${app_name}"
-    echo
 
     eval " $app_name_raw $app_args"
 
@@ -542,7 +572,9 @@ if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
     save_app_info_into_db
 else
     mv_dirs_and_files_to_home
+    trap "interruption_handler" INT
     run_app
+    trap - INT
 fi
 
 #----------------------------------------
