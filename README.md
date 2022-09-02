@@ -14,10 +14,10 @@ their hidden dot folders and files in the XDG Data path instead of polluting
 Just call the script with the program and its args or paths:
 
 ```command
-$ force-xdg program --example -n options "/path/to/file/"
+$ force-xdg program --example -n options "/path/to/file"
 ```
 
-It will store the dot folders/files inside `$XDG_DATA_HOME/Force-XDG/program`.
+It will store the dot folders/files inside `$XDG_DATA_HOME/Force-XDG/program/`.
 
 For help:
 
