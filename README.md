@@ -30,8 +30,8 @@ $ force-xdg -h
 ## Description
 
 When the program is launched, the script will move the content of the
-`$XDG_DATA_HOME/Force-XDG/APP/` folder into `$HOME` and after closing it will
-move the folders and files back to `$XDG_DATA_HOME/Force-XDG/APP/`.
+`$XDG_DATA_HOME/Force-XDG/program/` folder into `$HOME` and after closing it
+will move the folders and files back to `$XDG_DATA_HOME/Force-XDG/program/`.
 
 > _Moving files on the same filesystem in GNU/Linux is really fast since only
 > the_ directory entries _are modified._
