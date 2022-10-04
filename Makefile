@@ -2,7 +2,7 @@ SHELL = /bin/bash
 
 SOURCE_SCRIPT_NAME = force-xdg
 
-TARGET_FOLDER_INSTALLATION = /usr/local/bin
+TARGET_FOLDER_INSTALLATION = $(HOME)/.local/bin
 TARGET_SCRIPT_NAME = force-xdg
 AUTO_COMPLETE_PATH = $(XDG_DATA_HOME)/bash-completion/completions
 
@@ -15,8 +15,8 @@ DONE = $(GREEN)Done
 
 default:
 	@echo -e "Use $(GREEN)'make install'$(NS) to copy $(TARGET_SCRIPT_NAME)" \
-			 "into $(TARGET_FOLDER_INSTALLATION)/ and to add autocomplete" \
-			 "\nin $(AUTO_COMPLETE_PATH)"
+			 "into '$(TARGET_FOLDER_INSTALLATION)/' and to add autocomplete" \
+			 "in $(AUTO_COMPLETE_PATH)"
 
 install: install-script install-tab-completion
 
