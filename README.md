@@ -64,9 +64,9 @@ stored on that folder.
 ## Installation
 
 Just copy the script to `~/.local/bin/`, `/usr/local/bin/` or any location in
-your `PATH`. As an alternative `make` can be used to do it automatically
-(Permissions may need to be adjusted if used as normal user. This also install
-a BASH auto-completion entry in `XDG_DATA_HOME`):
+your `PATH`. As an alternative `make install` can be used to do it
+automatically to `~/.local/bin/`. This also install a BASH auto-completion
+entry in `XDG_DATA_HOME/bash-completion/completions`):
 
 ```
 git clone https://github.com/polirritmico/force-xdg.git
@@ -80,8 +80,10 @@ make install
 
 When the program is run through Force-XDG for the first time, the script will
 read the state of the dot folders and files of home and compare it with the
-state after closing the program, saving the list of new folders and files into
-`$XDG_DATA_HOME/Force-XDG/db`. For example:
+state after closing the program, then it will store the list of new folders and
+files into `$XDG_DATA_HOME/Force-XDG/db`.
+
+For example, lets see the files of Steam stored in the db:
 
 ```command
 $ cat ~/.local/share/Force-XDG/db | grep steam
@@ -117,15 +119,18 @@ PROGRAM;FAKEHOME;
 
 ### With KDE:
 
-Force-XDG works great with KDE, simply edit the program launcher:
+Force-XDG works great with KDE, simply edit the program launcher and use the
+`-k` option:
 
 1. Open the KDE main menu.
 2. Find the program → Right click → "Edit application" → Application tab.
-3. In the **Command** section, add _force-xdg_ before the binary call.
-4. Save.
-5. Launch the program from the KDE menu or Krunner.
-6. Close the program.
-7. Enjoy a clean home folder.
+3. In the **Command** section, add _force-xdg -k_ before the binary call.
+4. If necesary add escaped quotes to the place holder:
+   `%F` → `\"%F\"` (see the example).
+5. Save.
+6. Launch the program from the KDE menu or Krunner.
+7. Close the program.
+8. Enjoy a clean home folder.
 
 For example let's configure _Audacity_:
 
@@ -137,10 +142,10 @@ env UBUNTU_MENUPROXY=0 audacity %F
 ```
 It has a "env variable" (most launchers don't have that), then the program, and
 finally a "place holder". Simply adding ***force-xdg*** before the command
-will do the trick:
+and escaped quotes to the "place holder" will do the trick:
 
 ```
-env UBUNTU_MENUPROXY=0 force-xdg audacity %F
+env UBUNTU_MENUPROXY=0 force-xdg -k audacity \"%F\"
 ```
 ![Config app launcher through kmenuedit screenshot](docs/screenshot_02.png)
 
