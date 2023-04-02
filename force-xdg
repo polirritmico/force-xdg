@@ -300,7 +300,7 @@ else
     app_name="${app_name_raw##*/}" # remove path
 fi
 
-# Check if passed app exist on the system
+# Check if wrapped app exist on the system
 if ! command -v "$app_name_raw" > /dev/null 2>&1; then
     error_msg "Could't find '$app_name_raw' on the system.$NS"
     exit 1
@@ -528,7 +528,9 @@ function run_app()
     non_gui_message "${F_SCR}${ITL}Running '${app_command}':$NS"
     separator "${app_name}"
 
+    trap "interruption_handler" INT
     eval " $app_name_raw $app_args"
+    trap - INT
 
     separator
     non_gui_message -e "${F_SCR}${ITL}Closed '${F_APP}'$NS"
@@ -652,9 +654,7 @@ if [[ $fake_home_mode == true ]]; then
         non_gui_message "${F_SCR}${ITL}${ORANGE}Fake home directory not found.$NS"
         make_data_folder
     fi
-    trap "interruption_handler" INT
     run_app
-    trap - INT
 
     if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
         save_app_info_into_db
@@ -680,9 +680,7 @@ if [[ ${#app_dirs_and_files[@]} -eq 0 ]]; then
     save_app_info_into_db
 else
     mv_dirs_and_files_to_home
-    trap "interruption_handler" INT
     run_app
-    trap - INT
 fi
 
 #----------------------------------------
