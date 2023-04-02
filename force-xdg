@@ -122,6 +122,8 @@ $F_OPT  -d (dir)         ${NS}Manually set ${SCRIPT_NAME} data dir
                    ($ITL$FORCE_XDG_FOLDER$NS by default)
 $F_OPT  -f (fake)        ${NS}Enable fake \$HOME mode.
 $F_OPT  -k (kde)         ${NS}Enable KDE 'kdialog' output mode.
+$F_OPT  -O (overwrite)   ${NS}Overwrite mode will use existing files/folders.
+                   ${F_WAR}Use with caution! could cause data loss!${NS}
 $F_OPT  -s (no style)    ${NS}Disable style and colors.
 $F_OPT  -h (help)        ${NS}Display this help message.
 $F_OPT  -v (version)     ${NS}Display the version of $SCRIPT_NAME and exit."
@@ -161,6 +163,7 @@ function no_styles()
 custom_dir=""
 custom_id=""
 fake_home_mode=false
+overwrite_mode=false
 
 apps_db=()
 apps_db_file="$FORCE_XDG_FOLDER"/db
@@ -241,7 +244,7 @@ function notify_msg_dont_store()
 #-------------------------------------------------------------------------------
 #  Handle command line arguments
 #-------------------------------------------------------------------------------
-while getopts ":skhvc:d:f" opt
+while getopts ":skhvc:d:fO" opt
     do
         case $opt in
             s)
@@ -269,6 +272,9 @@ while getopts ":skhvc:d:f" opt
                 ;;
             f)
                 fake_home_mode=true
+                ;;
+            O)
+                overwrite_mode=true
                 ;;
             :)
                 error_msg "Invalid option: '-$OPTARG'" \
@@ -309,7 +315,12 @@ fi
 # Get all args after program (>$1)
 app_args=("${*:2}")
 
-# Check custom dir and fake_home_mode at the same time
+# Check fake_home_mode and overwrite_mode selected at the same time
+if [[ ${fake_home_mode} == true && ${overwrite_mode} == true ]]; then
+    error_msg "Can't use overwrite mode with fake mode enabled.$NS"
+    exit 1
+fi
+# Check custom dir and fake_home_mode selected at the same time
 if [[ -n ${custom_dir} && ${fake_home_mode} == true ]]; then
     error_msg "Can't use custom dir with fake mode enabled.$NS"
     exit 1
@@ -493,6 +504,17 @@ function mv_dirs_and_files_from_home()
 #===============================================================================
 function mv_dirs_and_files_to_home()
 {
+    if [[ ${overwrite_mode} == true ]]; then
+        for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
+            local file=${app_dirs_and_files[i]}
+            # If the file exists mv with overwrite to home
+            if [[ -e "${FORCE_XDG_FOLDER}/${app_name}/${file}" ]]; then
+                mv -f "${FORCE_XDG_FOLDER}/${app_name}/${file}" "${HOME}/.${file}"
+            fi
+        done
+        return
+    fi
+
     non_gui_message "${F_SCR}${ITL}Moving '${F_APP}' folders to home..."
     # First check if any folder/file already exist to prevent data loss
     for (( i=0; i<${#app_dirs_and_files[@]}; i++ )); do
