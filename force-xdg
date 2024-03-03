@@ -120,6 +120,7 @@ $F_OPT  -c (custom)      ${NS}Change the program identifier to a custom one. Use
                    or paths.
 $F_OPT  -d (dir)         ${NS}Manually set ${SCRIPT_NAME} data dir
                    ($ITL$FORCE_XDG_FOLDER$NS by default)
+$F_OPT  -i (input)       ${NS}Pass input files with spaces.
 $F_OPT  -f (fake)        ${NS}Enable fake \$HOME mode.
 $F_OPT  -k (kde)         ${NS}Enable KDE 'kdialog' output mode.
 $F_OPT  -O (overwrite)   ${NS}Overwrite mode will use existing files/folders.
@@ -164,6 +165,7 @@ custom_dir=""
 custom_id=""
 fake_home_mode=false
 overwrite_mode=false
+file_input_mode=false
 
 apps_db=()
 apps_db_file="$FORCE_XDG_FOLDER"/db
@@ -244,7 +246,7 @@ function notify_msg_dont_store()
 #-------------------------------------------------------------------------------
 #  Handle command line arguments
 #-------------------------------------------------------------------------------
-while getopts ":skhvc:d:fO" opt
+while getopts ":skhvc:d:i:fO" opt
     do
         case $opt in
             s)
@@ -275,6 +277,10 @@ while getopts ":skhvc:d:fO" opt
                 ;;
             O)
                 overwrite_mode=true
+                ;;
+            i)
+                file_input_mode=true
+                input_filename=$OPTARG
                 ;;
             :)
                 error_msg "Invalid option: '-$OPTARG'" \
@@ -550,9 +556,15 @@ function run_app()
     non_gui_message "${F_SCR}${ITL}Running '${app_command}':$NS"
     separator "${app_name}"
 
-    trap "interruption_handler" INT
-    eval " $app_name_raw $app_args"
-    trap - INT
+    if [[ ${file_input_mode} == true ]]; then
+        trap "interruption_handler" INT
+        eval " $app_name_raw $app_args '${input_filename}'"
+        trap - INT
+    else
+        trap "interruption_handler" INT
+        eval " $app_name_raw $app_args"
+        trap - INT
+    fi
 
     separator
     non_gui_message -e "${F_SCR}${ITL}Closed '${F_APP}'$NS"
