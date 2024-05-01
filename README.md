@@ -1,13 +1,13 @@
-Force-XDG :house::wrench:
-===========================
-![GitHub last commit](https://img.shields.io/github/last-commit/polirritmico/force-xdg)  [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+# Force-XDG :house::wrench:
+
+![GitHub last commit](https://img.shields.io/github/last-commit/polirritmico/force-xdg)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 A BASH script to force non-compliant _XDG Base Directory_ programs to store
 their hidden dot folders and files in the XDG Data path instead of polluting
 `$HOME`.
 
 ![Force-XDG running](docs/screenshot_01.png)
-
 
 ## TL;DR
 
@@ -25,7 +25,7 @@ For help:
 $ force-xdg -h
 ```
 
--------------------------------------------------------------------------------
+---
 
 ## Description
 
@@ -36,18 +36,18 @@ will move the folders and files back to `$XDG_DATA_HOME/Force-XDG/program/`.
 > _Moving files on the same filesystem in GNU/Linux is really fast since only
 > the_ directory entries _are modified._
 
-For example if ***Steam*** is launched through Force-XDG:
+For example if **_Steam_** is launched through Force-XDG:
 
 ```command
 $ force-xdg steam
 ```
-![Example](docs/example.png)
 
 It will move from `~/.local/share/Force-XDG/steam/` the folders and files
 `pki/`, `steam/`, `steampath` and `steampid` to `~/.pki`, `~/.steam`,
-`~/.steampath` and `~/.steampid` accordingly. After ***Steam*** is closed, it
+`~/.steampath` and `~/.steampid` accordingly. After **_Steam_** is closed, it
 will move those elements back to `~/.local/share/Force-XDG/steam/`.
 
+![Example](docs/example.png)
 
 ### Alternative: Fake Home Mode
 
@@ -60,19 +60,17 @@ script will simply change the `$HOME` environment variable value to
 `$XDG_DATA_HOME/Force-XDG/fake_home` so all dirs and folders are generated and
 stored on that folder.
 
-
 ## Installation
 
 Just copy the script to `~/.local/bin/`, `/usr/local/bin/` or any location in
-your `PATH`. As an alternative `make install` can be used to do it
-automatically to `~/.local/bin/`. This also install a BASH auto-completion
-entry in `XDG_DATA_HOME/bash-completion/completions`):
+your `PATH`. As an alternative `make install` can be used to do it automatically
+to `~/.local/bin/`. This also install a BASH auto-completion entry in
+`XDG_DATA_HOME/bash-completion/completions`):
 
 ```
 git clone https://github.com/polirritmico/force-xdg.git
 make install
 ```
-
 
 ## Usage
 
@@ -89,8 +87,8 @@ For example, lets see the files of Steam stored in the db:
 $ cat ~/.local/share/Force-XDG/db | grep steam
 steam;steampid;steampath;steam;pki;
 ```
- 
-> Is ***strongly recommended*** to close the program as soon as posible on its
+
+> Is **_strongly recommended_** to close the program as soon as posible on its
 > first run to get a clean file list as any dot-folder or file generated while
 > the program is running for first time will be added to the program's list.
 
@@ -105,6 +103,7 @@ First run:
 ```command
 $ force-xdg -f PROGRAM
 ```
+
 Then `-f` is no longer needed:
 
 ```command
@@ -116,7 +115,6 @@ $ cat $XDG_DATA_HOME/Force-XDG/db | grep PROGRAM
 PROGRAM;FAKEHOME;
 ```
 
-
 ### With KDE:
 
 Force-XDG works great with KDE, simply edit the program launcher and use the
@@ -125,8 +123,8 @@ Force-XDG works great with KDE, simply edit the program launcher and use the
 1. Open the KDE main menu.
 2. Find the program → Right click → "Edit application" → Application tab.
 3. In the **Command** section, add _force-xdg -k_ before the binary call.
-4. If necesary add escaped quotes to the place holder:
-   `%F` → `\"%F\"` (see the example).
+4. If necesary add escaped quotes to the place holder: `%F` → `\"%F\"` (see the
+   example).
 5. Save.
 6. Launch the program from the KDE menu or Krunner.
 7. Close the program.
@@ -134,20 +132,21 @@ Force-XDG works great with KDE, simply edit the program launcher and use the
 
 For example let's configure _Audacity_:
 
-On `kmenuedit`, search for _"Audacity"_ and click on the proper result.
-The command section should read something like this:
+On `kmenuedit`, search for _"Audacity"_ and click on the proper result. The
+command section should read something like this:
 
 ```
 env UBUNTU_MENUPROXY=0 audacity %F
 ```
+
 It has a "env variable" (most launchers don't have that), then the program, and
-finally a "place holder". Simply adding ***force-xdg*** before the command
-and escaped quotes to the "place holder" will do the trick:
+finally a "place holder". Simply adding **_force-xdg_** before the command and
+escaped quotes to the "place holder" will do the trick:
 
 ```
 env UBUNTU_MENUPROXY=0 force-xdg -k audacity \"%F\"
 ```
+
 ![Config app launcher through kmenuedit screenshot](docs/screenshot_02.png)
 
 Done!
-
