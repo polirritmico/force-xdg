@@ -7,7 +7,7 @@ A BASH script to force non-compliant _XDG Base Directory_ programs to store
 their hidden dot folders and files in the XDG Data path instead of polluting
 `$HOME`.
 
-![Force-XDG running](docs/screenshot_01.png)
+![Force-XDG running](https://github.com/polirritmico/force-xdg/assets/24460484/7464a40d-a211-408a-82b7-83cc1a67529e)
 
 ## TL;DR
 
@@ -47,7 +47,7 @@ It will move from `~/.local/share/Force-XDG/steam/` the folders and files
 `~/.steampath` and `~/.steampid` accordingly. After **_Steam_** is closed, it
 will move those elements back to `~/.local/share/Force-XDG/steam/`.
 
-![Example](docs/example.png)
+![Example](https://github.com/polirritmico/force-xdg/assets/24460484/4b3df356-6aa7-413f-9092-a323b64ad90c)
 
 ### Alternative: Fake Home Mode
 
@@ -147,6 +147,6 @@ escaped quotes to the "place holder" will do the trick:
 env UBUNTU_MENUPROXY=0 force-xdg -k audacity \"%F\"
 ```
 
-![Config app launcher through kmenuedit screenshot](docs/screenshot_02.png)
+![Config app launcher through kmenuedit screenshot](https://github.com/polirritmico/force-xdg/assets/24460484/ed0cbb0e-dbd8-40d1-9833-5038ba8a6118)
 
 Done!
