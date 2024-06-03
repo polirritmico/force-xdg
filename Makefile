@@ -18,6 +18,8 @@ default:
 			 "into '$(TARGET_FOLDER_INSTALLATION)/' and to add autocomplete" \
 			 "in $(AUTO_COMPLETE_PATH)"
 
+help: default
+
 install: install-script install-tab-completion
 
 install-script:
